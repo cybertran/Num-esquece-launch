@@ -1,0 +1,169 @@
+<resources>
+    <string name="app_name">Num esquece</string>
+
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="settings">Settings</string>
+    <string name="nav_now">Now</string>
+    <string name="nav_reminders">Reminders</string>
+    <string name="nav_history">History</string>
+    <string name="remember_action">Remember</string>
+    <string name="done">Done</string>
+    <string name="snooze_10">Snooze 10 min</string>
+    <string name="status_active">Active</string>
+    <string name="status_attention">Attention</string>
+    <string name="version_format">Version %1$s</string>
+
+    <string name="sound_num_esquece">Num esquece sounds</string>
+    <string name="sound_system">Phone default sound</string>
+    <string name="sound_silent">Silent</string>
+
+    <string name="intensity_normal">Normal</string>
+    <string name="intensity_insistent">Insistent</string>
+    <string name="intensity_dont_forget">Do not let me forget</string>
+    <string name="intensity_normal_explanation">Notifies you and stays pending in the app.</string>
+    <string name="intensity_insistent_explanation">If you dismiss it, it comes back in 15 minutes.</string>
+    <string name="intensity_dont_forget_explanation">If you dismiss it, it comes back in 5 minutes.</string>
+
+    <string name="repeat_none">Do not repeat</string>
+    <string name="repeat_daily">Every day</string>
+    <string name="repeat_weekly">Every week</string>
+    <string name="repeat_monthly">Every month</string>
+    <string name="repeat_after_completion">After I complete it</string>
+
+    <string name="test_reminder_title">Num esquece test</string>
+    <string name="test_reminder_notes">If this alert arrived, notifications are working.</string>
+
+    <string name="channel_group_reminders">Reminders</string>
+    <string name="channel_normal">Normal — Num esquece</string>
+    <string name="channel_insistent">Insistent — Num esquece</string>
+    <string name="channel_dont_forget">Do not let me forget — Num esquece</string>
+    <string name="channel_system_description">Reminders using the phone default notification sound</string>
+    <string name="channel_silent_description">Visual reminders without sound or vibration</string>
+    <string name="channel_app_sound_description">Num esquece custom sound</string>
+    <string name="notification_pending">Still pending.</string>
+    <string name="notification_insistent">I will remind you again if you dismiss this alert.</string>
+    <string name="notification_dont_forget">You asked me not to let this slip.</string>
+
+    <string name="today">today</string>
+    <string name="tomorrow">tomorrow</string>
+    <string name="relative_date_time">%1$s, %2$s</string>
+    <string name="until_time">Until %1$s</string>
+    <string name="window_closed">Window ended</string>
+    <string name="since_time">Since %1$s</string>
+    <plurals name="snoozed_count">
+        <item quantity="one"> · snoozed %1$d time</item>
+        <item quantity="other"> · snoozed %1$d times</item>
+    </plurals>
+    <string name="completed_at">Completed %1$s</string>
+
+    <plurals name="pending_attention">
+        <item quantity="one">%1$d thing still needs your attention.</item>
+        <item quantity="other">%1$d things still need your attention.</item>
+    </plurals>
+    <string name="section_pending">STILL PENDING</string>
+    <string name="section_next">NEXT</string>
+    <string name="section_later">LATER</string>
+    <string name="empty_create_reminder">Create a reminder for something that usually slips your mind.</string>
+    <string name="all_caught_up">You are all caught up.</string>
+    <string name="no_pending_reminders">No pending reminders.</string>
+    <string name="next_scheduled_for">The next one is scheduled for %1$s.</string>
+    <string name="no_active_reminders">No active reminders.</string>
+    <string name="history_empty">Completed reminders will appear here.</string>
+
+    <string name="onboarding_tagline">The reminder only ends when you take care of it.</string>
+    <string name="onboarding_fast_title">Quick to create</string>
+    <string name="onboarding_fast_body">Save what you cannot forget without turning it into a project.</string>
+    <string name="onboarding_intensity_title">You choose how persistent it is</string>
+    <string name="onboarding_intensity_body">Use Normal, Insistent, or Do not let me forget.</string>
+    <string name="onboarding_account_title">Optional account</string>
+    <string name="onboarding_account_body">Works without an account. If you want, use your Google Account to carry reminders between devices.</string>
+    <string name="sync_title">Sync</string>
+    <string name="onboarding_sync_body">You can use your Google Account to sync. Num esquece does not read your email; it only uses the app private area in Google Drive.</string>
+    <string name="google_account_connected">Google Account connected</string>
+    <string name="connecting">Connecting…</string>
+    <string name="connect_google_account">Connect Google Account</string>
+    <string name="onboarding_sync_later">You can also continue without an account and connect later in Settings.</string>
+    <string name="onboarding_local_title">Local by default</string>
+    <string name="onboarding_local_body">No required account and no ads. Your reminders stay on the device.</string>
+    <string name="enable_notifications">Enable notifications</string>
+    <string name="allow_exact_alarms">Allow exact alarms</string>
+    <string name="start">Start</string>
+    <string name="onboarding_options_later">You can change these options later in Settings.</string>
+
+    <string name="new_reminder">New reminder</string>
+    <string name="edit_reminder">Edit reminder</string>
+    <string name="reminder_title_prompt">What can you not forget?</string>
+    <string name="notes_optional">Notes (optional)</string>
+    <string name="reminder_when">When</string>
+    <string name="quick_today_18">Today 6 PM</string>
+    <string name="quick_tomorrow_9">Tomorrow 9 AM</string>
+    <string name="quick_in_1h">In 1 hour</string>
+    <string name="how_to_remind">How do you want to be reminded?</string>
+    <string name="time_window">Time window</string>
+    <string name="within_window">It can happen within a time window</string>
+    <string name="window_explanation">The app shows when that window ends.</string>
+    <string name="repeat">Repeat</string>
+    <string name="repeat_prefix">Repeat</string>
+    <string name="save_reminder">Save reminder</string>
+    <string name="delete_reminder_title">Delete reminder?</string>
+    <string name="delete_reminder_body">This action removes this reminder from the device.</string>
+    <string name="hours_short">%1$dh</string>
+    <plurals name="days_short">
+        <item quantity="one">%1$dd</item>
+        <item quantity="other">%1$dd</item>
+    </plurals>
+    <string name="selected_value">✓ %1$s</string>
+
+    <string name="reliability">Reliability</string>
+    <string name="notifications">Notifications</string>
+    <string name="exact_alarms">Exact alarms</string>
+    <string name="create_test_reminder">Create a test reminder in 1 minute</string>
+    <string name="reminder_sound">Reminder sound</string>
+    <string name="reminder_sound_description">Choose how Num esquece sounds. Custom sounds change with reminder intensity.</string>
+    <string name="listen_custom_sounds">Listen to the three custom sounds:</string>
+    <string name="listen_default_sound">Listen to default sound</string>
+    <string name="silent_description">Notifications still appear, but without sound or vibration.</string>
+    <string name="android_channel_notice">Android lets you change each notification category in system settings; that choice always takes precedence.</string>
+    <string name="only_this_device">Only on this device</string>
+    <string name="sync_description">Optional. Syncs reminders and history using the Num esquece private area in Google Drive. The app does not read Gmail or your inbox.</string>
+    <string name="last_sync_at">Last sync: %1$s</string>
+    <string name="syncing">Syncing…</string>
+    <string name="sync_now">Sync now</string>
+    <string name="choose_another_google_account">Choose another Google Account</string>
+    <string name="disconnect_google_account">Disconnect Google Account</string>
+    <string name="appearance">Appearance</string>
+    <string name="system_colors">System colors</string>
+    <string name="material_you_description">Uses Material You when available.</string>
+    <string name="privacy">Privacy</string>
+    <string name="privacy_google">The core of Num esquece works locally, without a required account and without ads. If you enable sync, a copy of your reminders is stored in the app private area in your Google Drive.</string>
+    <string name="privacy_local">Num esquece works locally, without a required account and without ads.</string>
+    <string name="support_num_esquece">Support Num esquece</string>
+    <string name="support_description">Num esquece is free and open source. If it is useful to you, a voluntary donation helps keep development going.</string>
+    <string name="make_donation">Make a donation</string>
+    <string name="about">About</string>
+    <string name="open_source_description">Free and open-source software, licensed under GPL-3.0-or-later. No ads.</string>
+    <string name="view_source_code">View source code</string>
+
+    <string name="sync_connection_not_completed">Could not complete the Google Account connection. Try again or continue without an account.</string>
+    <string name="sync_authorization_not_completed">Could not complete Google authorization.</string>
+    <string name="sync_revocation_failed">Sync was disabled, but Google authorization could not be revoked right now.</string>
+    <string name="sync_reconfirm_account">The Google Account needs to be confirmed again in the app.</string>
+    <string name="sync_no_authorization_screen">Google did not provide an authorization screen.</string>
+    <string name="sync_open_authorization_failed">Could not open Google authorization.</string>
+    <string name="sync_connection_failed">Could not connect to the Google Account. Check the Google Drive configuration for this app.</string>
+    <string name="sync_invalid_authorization">Google did not return a valid authorization.</string>
+    <string name="sync_drive_failed">Could not sync with Google Drive.</string>
+    <plurals name="sync_reminders">
+        <item quantity="one">%1$d reminder synced.</item>
+        <item quantity="other">%1$d reminders synced.</item>
+    </plurals>
+    <string name="sync_check_connection">Check your Internet connection.</string>
+    <string name="sync_oauth_mismatch">The OAuth configuration does not match this APK package or certificate.</string>
+    <string name="sync_google_unreachable">Could not reach Google services. Check your connection.</string>
+    <string name="sync_authorization_cancelled">Google authorization was not completed.</string>
+    <string name="sync_google_internal_error">Google services returned an internal error. Try again.</string>
+    <string name="sync_google_code">Google returned code %1$d.</string>
+    <string name="sync_try_again">Try again.</string>
+</resources>

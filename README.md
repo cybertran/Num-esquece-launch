@@ -14,6 +14,8 @@ Não há anúncios, assinatura ou conta obrigatória.
 
 ## Software livre
 
+Este repositório contém o código-fonte preparado para publicação das versões do Num esquece. A branch `main` representa o estado público atual do projeto e as tags identificam versões distribuídas.
+
 O código do Num esquece é distribuído sob a licença **GNU GPL v3 ou posterior (GPL-3.0-or-later)**.
 
 A distribuição principal planejada é pelo **F-Droid**. O flavor `fdroid` é totalmente local, não inclui Google Play Services e não declara permissões de Internet ou estado da rede.
@@ -54,19 +56,19 @@ O flavor `google` adiciona WorkManager e Google Identity Services apenas para a 
 Build F-Droid:
 
 ```bash
-gradle --no-daemon :app:assembleFdroidRelease
+./gradlew --no-daemon :app:assembleFdroidRelease
 ```
 
 Build de desenvolvimento F-Droid:
 
 ```bash
-gradle --no-daemon :app:assembleFdroidDebug
+./gradlew --no-daemon :app:assembleFdroidDebug
 ```
 
 Build com integração Google:
 
 ```bash
-gradle --no-daemon :app:assembleGoogleDebug
+./gradlew --no-daemon :app:assembleGoogleDebug
 ```
 
 A versão atual de preparação é **1.0.0-rc3** (`versionCode 10002`).
@@ -77,8 +79,10 @@ O flavor F-Droid funciona localmente e não possui permissão de Internet. Os le
 
 O flavor Google é separado e, quando usado, pode sincronizar voluntariamente os dados pela área privada `appDataFolder` do Google Drive.
 
-Veja também [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md) e [docs/FDROID.md](docs/FDROID.md).
+Veja também [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md), [docs/FDROID.md](docs/FDROID.md) e [docs/ASSETS.md](docs/ASSETS.md).
 
 ## Contribuições
 
-Issues, correções e melhorias serão bem-vindas quando o repositório for tornado público. Antes da primeira submissão oficial ao F-Droid, o projeto deverá publicar uma tag estável e os metadados correspondentes.
+Issues, correções e melhorias são bem-vindas. Pull requests são validados exclusivamente em runners hospedados pelo GitHub e não recebem credenciais de assinatura ou outros secrets de publicação.
+
+Antes da primeira submissão oficial ao F-Droid, o projeto deverá publicar uma tag estável e os metadados correspondentes.

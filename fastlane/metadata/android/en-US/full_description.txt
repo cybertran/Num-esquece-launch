@@ -1,0 +1,7 @@
+Num esquece is a focused reminder app built around a simple idea: a reminder should not disappear just because you dismissed a notification.
+
+Create reminders quickly, choose how persistent each one should be, snooze them, complete them, use recurring schedules, and keep a history of what you finished.
+
+The F-Droid build is fully local, has no ads, requires no account, and does not include Google Play Services or Internet permissions.
+
+Num esquece is free and open source under GPL-3.0-or-later. Optional donations help support development but never unlock features.

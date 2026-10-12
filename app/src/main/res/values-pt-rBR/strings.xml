@@ -1,0 +1,169 @@
+<resources>
+    <string name="app_name">Num esquece</string>
+
+    <string name="back">Voltar</string>
+    <string name="delete">Excluir</string>
+    <string name="cancel">Cancelar</string>
+    <string name="settings">Configurações</string>
+    <string name="nav_now">Agora</string>
+    <string name="nav_reminders">Lembretes</string>
+    <string name="nav_history">Histórico</string>
+    <string name="remember_action">Lembrar</string>
+    <string name="done">Fiz</string>
+    <string name="snooze_10">Adiar 10 min</string>
+    <string name="status_active">Ativo</string>
+    <string name="status_attention">Atenção</string>
+    <string name="version_format">Versão %1$s</string>
+
+    <string name="sound_num_esquece">Sons do Num esquece</string>
+    <string name="sound_system">Som padrão do celular</string>
+    <string name="sound_silent">Silencioso</string>
+
+    <string name="intensity_normal">Normal</string>
+    <string name="intensity_insistent">Insistente</string>
+    <string name="intensity_dont_forget">Num deixa eu esquecer</string>
+    <string name="intensity_normal_explanation">Avisa e permanece pendente no app.</string>
+    <string name="intensity_insistent_explanation">Se você dispensar, volta em 15 minutos.</string>
+    <string name="intensity_dont_forget_explanation">Se você dispensar, volta em 5 minutos.</string>
+
+    <string name="repeat_none">Não repetir</string>
+    <string name="repeat_daily">Todo dia</string>
+    <string name="repeat_weekly">Toda semana</string>
+    <string name="repeat_monthly">Todo mês</string>
+    <string name="repeat_after_completion">Depois que eu fizer</string>
+
+    <string name="test_reminder_title">Teste do Num esquece</string>
+    <string name="test_reminder_notes">Se este aviso chegou, as notificações estão funcionando.</string>
+
+    <string name="channel_group_reminders">Lembretes</string>
+    <string name="channel_normal">Normal — Num esquece</string>
+    <string name="channel_insistent">Insistente — Num esquece</string>
+    <string name="channel_dont_forget">Num deixa eu esquecer — Num esquece</string>
+    <string name="channel_system_description">Lembretes usando o som padrão de notificações do aparelho</string>
+    <string name="channel_silent_description">Lembretes visuais sem som nem vibração</string>
+    <string name="channel_app_sound_description">Som próprio do Num esquece</string>
+    <string name="notification_pending">Ainda está pendente.</string>
+    <string name="notification_insistent">Vou insistir se você dispensar este aviso.</string>
+    <string name="notification_dont_forget">Você pediu para eu não deixar isso passar.</string>
+
+    <string name="today">hoje</string>
+    <string name="tomorrow">amanhã</string>
+    <string name="relative_date_time">%1$s, %2$s</string>
+    <string name="until_time">Até %1$s</string>
+    <string name="window_closed">Janela encerrada</string>
+    <string name="since_time">Desde %1$s</string>
+    <plurals name="snoozed_count">
+        <item quantity="one"> · adiado %1$dx</item>
+        <item quantity="other"> · adiado %1$dx</item>
+    </plurals>
+    <string name="completed_at">Concluído %1$s</string>
+
+    <plurals name="pending_attention">
+        <item quantity="one">%1$d coisa ainda precisa da sua atenção.</item>
+        <item quantity="other">%1$d coisas ainda precisam da sua atenção.</item>
+    </plurals>
+    <string name="section_pending">AINDA PENDENTES</string>
+    <string name="section_next">PRÓXIMO</string>
+    <string name="section_later">DEPOIS</string>
+    <string name="empty_create_reminder">Crie um lembrete para aquilo que costuma escapar da cabeça.</string>
+    <string name="all_caught_up">Você está em dia.</string>
+    <string name="no_pending_reminders">Nenhum lembrete pendente.</string>
+    <string name="next_scheduled_for">O próximo está marcado para %1$s.</string>
+    <string name="no_active_reminders">Nenhum lembrete ativo.</string>
+    <string name="history_empty">Os lembretes concluídos vão aparecer aqui.</string>
+
+    <string name="onboarding_tagline">O lembrete só termina quando você resolve o assunto.</string>
+    <string name="onboarding_fast_title">Rápido de criar</string>
+    <string name="onboarding_fast_body">Registre o que não pode esquecer sem transformar isso em um projeto.</string>
+    <string name="onboarding_intensity_title">Você escolhe o quanto ele insiste</string>
+    <string name="onboarding_intensity_body">Use Normal, Insistente ou Num deixa eu esquecer.</string>
+    <string name="onboarding_account_title">Conta opcional</string>
+    <string name="onboarding_account_body">Funciona sem conta. Se quiser, use sua Conta Google para levar os lembretes entre aparelhos.</string>
+    <string name="sync_title">Sincronização</string>
+    <string name="onboarding_sync_body">Você pode usar sua Conta Google para sincronizar. O Num esquece não lê seus e-mails; usa apenas a área privada do aplicativo no Google Drive.</string>
+    <string name="google_account_connected">Conta Google conectada</string>
+    <string name="connecting">Conectando…</string>
+    <string name="connect_google_account">Conectar Conta Google</string>
+    <string name="onboarding_sync_later">Também dá para continuar sem conta e conectar depois nas Configurações.</string>
+    <string name="onboarding_local_title">Local por padrão</string>
+    <string name="onboarding_local_body">Sem conta obrigatória e sem anúncios. Seus lembretes ficam no aparelho.</string>
+    <string name="enable_notifications">Ativar notificações</string>
+    <string name="allow_exact_alarms">Permitir alarmes precisos</string>
+    <string name="start">Começar</string>
+    <string name="onboarding_options_later">Essas opções podem ser ajustadas depois nas Configurações.</string>
+
+    <string name="new_reminder">Novo lembrete</string>
+    <string name="edit_reminder">Editar lembrete</string>
+    <string name="reminder_title_prompt">O que você não pode esquecer?</string>
+    <string name="notes_optional">Observação (opcional)</string>
+    <string name="reminder_when">Quando</string>
+    <string name="quick_today_18">Hoje 18h</string>
+    <string name="quick_tomorrow_9">Amanhã 9h</string>
+    <string name="quick_in_1h">Daqui 1h</string>
+    <string name="how_to_remind">Como quer ser lembrado?</string>
+    <string name="time_window">Janela de horário</string>
+    <string name="within_window">Pode acontecer dentro de uma janela</string>
+    <string name="window_explanation">O app mostra quando essa janela termina.</string>
+    <string name="repeat">Repetir</string>
+    <string name="repeat_prefix">Repetir</string>
+    <string name="save_reminder">Salvar lembrete</string>
+    <string name="delete_reminder_title">Excluir lembrete?</string>
+    <string name="delete_reminder_body">Essa ação remove este lembrete do aparelho.</string>
+    <string name="hours_short">%1$dh</string>
+    <plurals name="days_short">
+        <item quantity="one">%1$dd</item>
+        <item quantity="other">%1$dd</item>
+    </plurals>
+    <string name="selected_value">✓ %1$s</string>
+
+    <string name="reliability">Confiabilidade</string>
+    <string name="notifications">Notificações</string>
+    <string name="exact_alarms">Alarmes precisos</string>
+    <string name="create_test_reminder">Criar lembrete de teste em 1 minuto</string>
+    <string name="reminder_sound">Som dos lembretes</string>
+    <string name="reminder_sound_description">Você escolhe como o Num esquece soa. Os sons próprios mudam conforme a intensidade do lembrete.</string>
+    <string name="listen_custom_sounds">Ouvir os três sons próprios:</string>
+    <string name="listen_default_sound">Ouvir som padrão</string>
+    <string name="silent_description">As notificações continuam aparecendo, mas sem som nem vibração.</string>
+    <string name="android_channel_notice">O Android permite alterar cada categoria de notificação nas configurações do sistema; essa escolha sempre prevalece.</string>
+    <string name="only_this_device">Somente neste aparelho</string>
+    <string name="sync_description">Opcional. Sincroniza lembretes e histórico usando a área privada do Num esquece no Google Drive. O app não lê Gmail nem sua caixa de entrada.</string>
+    <string name="last_sync_at">Última sincronização: %1$s</string>
+    <string name="syncing">Sincronizando…</string>
+    <string name="sync_now">Sincronizar agora</string>
+    <string name="choose_another_google_account">Escolher outra Conta Google</string>
+    <string name="disconnect_google_account">Desconectar Conta Google</string>
+    <string name="appearance">Aparência</string>
+    <string name="system_colors">Cores do sistema</string>
+    <string name="material_you_description">Usa o Material You quando disponível.</string>
+    <string name="privacy">Privacidade</string>
+    <string name="privacy_google">O núcleo do Num esquece funciona localmente, sem conta obrigatória e sem anúncios. Se você ativar a sincronização, uma cópia dos lembretes é guardada na área privada do aplicativo no seu Google Drive.</string>
+    <string name="privacy_local">O Num esquece funciona localmente, sem conta obrigatória e sem anúncios.</string>
+    <string name="support_num_esquece">Apoiar o Num esquece</string>
+    <string name="support_description">O Num esquece é gratuito e de código aberto. Se ele for útil para você, uma doação voluntária ajuda a manter o desenvolvimento.</string>
+    <string name="make_donation">Fazer uma doação</string>
+    <string name="about">Sobre</string>
+    <string name="open_source_description">Software livre e gratuito, licenciado sob GPL-3.0-or-later. Sem anúncios.</string>
+    <string name="view_source_code">Ver código-fonte</string>
+
+    <string name="sync_connection_not_completed">Não foi possível concluir a conexão com a Conta Google. Tente novamente ou continue sem conta.</string>
+    <string name="sync_authorization_not_completed">Não foi possível concluir a autorização do Google.</string>
+    <string name="sync_revocation_failed">A sincronização foi desativada, mas a autorização do Google não pôde ser revogada agora.</string>
+    <string name="sync_reconfirm_account">A Conta Google precisa ser confirmada novamente no aplicativo.</string>
+    <string name="sync_no_authorization_screen">O Google não forneceu uma tela de autorização.</string>
+    <string name="sync_open_authorization_failed">Não foi possível abrir a autorização do Google.</string>
+    <string name="sync_connection_failed">Não foi possível conectar à Conta Google. Verifique a configuração do Google Drive para este aplicativo.</string>
+    <string name="sync_invalid_authorization">O Google não retornou uma autorização válida.</string>
+    <string name="sync_drive_failed">Não foi possível sincronizar com o Google Drive.</string>
+    <plurals name="sync_reminders">
+        <item quantity="one">%1$d lembrete sincronizado.</item>
+        <item quantity="other">%1$d lembretes sincronizados.</item>
+    </plurals>
+    <string name="sync_check_connection">Confira sua conexão com a Internet.</string>
+    <string name="sync_oauth_mismatch">A configuração OAuth não corresponde ao pacote ou ao certificado deste APK.</string>
+    <string name="sync_google_unreachable">Não foi possível falar com os serviços do Google. Confira a conexão.</string>
+    <string name="sync_authorization_cancelled">A autorização do Google não foi concluída.</string>
+    <string name="sync_google_internal_error">Os serviços do Google retornaram um erro interno. Tente novamente.</string>
+    <string name="sync_google_code">O Google retornou o código %1$d.</string>
+    <string name="sync_try_again">Tente novamente.</string>
+</resources>

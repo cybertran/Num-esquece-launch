@@ -1,0 +1,1 @@
+Terceira versão candidata. Inclui separação do flavor F-Droid, lembretes locais, quatro idiomas e preparação de privacidade/código aberto.

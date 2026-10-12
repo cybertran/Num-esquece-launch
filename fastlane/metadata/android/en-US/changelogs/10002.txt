@@ -1,0 +1,1 @@
+Release candidate 3. Adds the F-Droid flavor separation, local-first reminders, four UI languages, and open-source/privacy preparation.

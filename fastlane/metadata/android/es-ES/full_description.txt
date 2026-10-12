@@ -1,0 +1,7 @@
+Num esquece es una aplicación de recordatorios centrada en una idea sencilla: un recordatorio no debería desaparecer solo porque descartaste una notificación.
+
+Crea recordatorios rápidamente, elige cuánto debe insistir cada uno, pospón, completa, usa recurrencias y consulta el historial de lo que ya resolviste.
+
+La versión de F-Droid funciona completamente de forma local, no tiene anuncios, no exige cuenta y no incluye Google Play Services ni permisos de Internet.
+
+Num esquece es gratis y de código abierto bajo GPL-3.0-or-later. Las donaciones opcionales ayudan a mantener el desarrollo, pero nunca desbloquean funciones.

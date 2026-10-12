@@ -1,0 +1,7 @@
+Num esquece est une application de rappels fondée sur une idée simple : un rappel ne devrait pas disparaître simplement parce qu’une notification a été fermée.
+
+Créez rapidement des rappels, choisissez leur niveau d’insistance, reportez-les, marquez-les comme terminés, utilisez des récurrences et consultez l’historique.
+
+La version F-Droid fonctionne entièrement en local, sans publicité, sans compte obligatoire, sans Google Play Services et sans permission Internet.
+
+Num esquece est gratuit et open source sous GPL-3.0-or-later. Les dons facultatifs soutiennent le développement mais ne débloquent jamais de fonctionnalités.
