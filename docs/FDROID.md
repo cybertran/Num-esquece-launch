@@ -1,6 +1,12 @@
 # Preparação para F-Droid
 
-O Num esquece mantém um flavor de distribuição chamado `fdroid`.
+O Num esquece mantém um único flavor de distribuição chamado `fdroid`.
+
+## Estado da v1.0.0
+
+A versão `1.0.0` usa `versionCode 10003` e está marcada pela tag `v1.0.0`. O repositório contém `.fdroid.yml` com a receita upstream correspondente para facilitar a inclusão no repositório oficial do F-Droid.
+
+O F-Droid deve reconstruir o aplicativo a partir do código-fonte público e aplicar sua própria assinatura de distribuição. Nenhuma chave privada de produção é necessária no repositório público.
 
 ## Regras do APK F-Droid
 
@@ -14,7 +20,7 @@ O APK:
 - desativa backup automático e exclui os dados das regras de backup e transferência do Android;
 - inclui metadados em português do Brasil, inglês, espanhol e francês.
 
-As licenças e a proveniência dos recursos distribuídos estão documentadas em `docs/ASSETS.md`. O projeto inclui Gradle Wrapper 9.6.0 com checksum da distribuição fixado.
+As licenças e a proveniência dos recursos distribuídos estão documentadas em `docs/ASSETS.md`. O projeto inclui Gradle Wrapper com checksum da distribuição fixado.
 
 Build esperado:
 
@@ -22,13 +28,18 @@ Build esperado:
 ./gradlew --no-daemon :app:assembleFdroidRelease
 ```
 
-## Antes da submissão oficial
+## Submissão
 
-1. Concluir a auditoria e os testes em aparelho real.
-2. Promover o snapshot aprovado para o repositório público.
-3. Criar a primeira versão estável e a tag Git correspondente.
-4. Adicionar screenshots upstream ao metadata do F-Droid.
-5. Definir a página de doação, caso desejada, e registrar o mesmo destino no README ou em `.github/FUNDING.yml`.
-6. Abrir a solicitação de inclusão no repositório oficial do F-Droid.
+A receita upstream usa:
 
-Novos recursos visuais ou sonoros devem ter licença e proveniência registradas antes de serem publicados.
+```yaml
+versionName: 1.0.0
+versionCode: 10003
+commit: v1.0.0
+gradle:
+  - fdroid
+```
+
+O arquivo correspondente a ser usado no `fdroiddata` é `metadata/com.cybertran.numesquece.yml`, baseado no conteúdo de `.fdroid.yml`.
+
+Novos recursos visuais ou sonoros devem ter licença e proveniência registradas antes de serem publicados. Cada nova versão estável deve atualizar `versionName`, `versionCode`, tag e metadata de forma consistente.
