@@ -1,11 +1,9 @@
 package com.cybertran.numesquece.data
 
 import androidx.annotation.StringRes
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.cybertran.numesquece.R
-import java.util.UUID
 
 @Entity(tableName = "reminders")
 data class ReminderEntity(
@@ -13,7 +11,8 @@ data class ReminderEntity(
     val title: String,
     val notes: String = "",
     val dueAt: Long,
-    val windowEndAt: Long? = null,
+    val deadlineAt: Long? = null,
+    val deadlineOffsetMinutes: Int? = null,
     val intensity: String = ReminderIntensity.NORMAL.name,
     val repeatMode: String = RepeatMode.NONE.name,
     val repeatIntervalDays: Int = 30,
@@ -21,10 +20,7 @@ data class ReminderEntity(
     val snoozeCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
     val completedAt: Long? = null,
-    @ColumnInfo(defaultValue = "''")
-    val syncId: String = UUID.randomUUID().toString(),
-    @ColumnInfo(defaultValue = "0")
-    val updatedAt: Long = System.currentTimeMillis(),
+    val monthlyAnchorDay: Int? = null,
 )
 
 enum class ReminderIntensity(@StringRes val labelRes: Int, val repeatMinutesAfterDismiss: Int?) {
@@ -36,7 +32,6 @@ enum class ReminderIntensity(@StringRes val labelRes: Int, val repeatMinutesAfte
 enum class ReminderStatus {
     ACTIVE,
     COMPLETED,
-    DELETED,
 }
 
 enum class RepeatMode(@StringRes val labelRes: Int) {
