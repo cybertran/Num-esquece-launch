@@ -78,7 +78,7 @@ jobs:
           metadata = Path(".fdroid.yml").read_text(encoding="utf-8")
 
           def field(name: str) -> str:
-              match = re.search(rf"^\s*{re.escape(name)}:\s*['\"]?([^'\"\n]+)['\"]?\s*$", metadata, re.MULTILINE)
+              match = re.search(rf"^\s*(?:-\s+)?{re.escape(name)}:\s*['\"]?([^'\"\n]+)['\"]?\s*$", metadata, re.MULTILINE)
               if not match:
                   raise SystemExit(f"Missing F-Droid metadata field: {name}")
               return match.group(1).strip()
