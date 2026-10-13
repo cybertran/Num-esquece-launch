@@ -1,7 +1,7 @@
 Num esquece é um aplicativo de lembretes focado em uma ideia simples: um lembrete não deve desaparecer só porque você dispensou uma notificação.
 
-Crie lembretes rapidamente, escolha o quanto cada um deve insistir, adie, conclua, use recorrências e acompanhe o histórico do que já foi resolvido.
+Crie lembretes rapidamente, escolha o quanto cada um deve insistir, adie, conclua, use recorrências, defina um prazo para resolver e acompanhe o histórico do que já foi resolvido.
 
-A versão do F-Droid funciona totalmente de forma local, não tem anúncios, não exige conta e não inclui Google Play Services nem permissões de Internet.
+O Num esquece é offline por construção: sem permissão de Internet, sem conta, sem anúncios, sem analytics, sem servidor e sem backup automático em nuvem.
 
 Num esquece é gratuito e de código aberto sob GPL-3.0-or-later. Doações opcionais ajudam a manter o desenvolvimento, mas nunca desbloqueiam funcionalidades.
