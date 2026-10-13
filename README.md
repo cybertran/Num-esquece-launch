@@ -18,7 +18,7 @@ Este repositório contém o código-fonte preparado para publicação das versõ
 
 O código do Num esquece é distribuído sob a licença **GNU GPL v3 ou posterior (GPL-3.0-or-later)**.
 
-A distribuição principal planejada é pelo **F-Droid**. O aplicativo é deliberadamente offline: não declara permissões de Internet ou estado da rede e não inclui sincronização remota.
+A distribuição principal é preparada para o **F-Droid**. O aplicativo é deliberadamente offline: não declara permissões de Internet ou estado da rede e não inclui sincronização remota.
 
 ## Doações
 
@@ -54,7 +54,7 @@ Build de desenvolvimento:
 ./gradlew --no-daemon :app:assembleFdroidDebug
 ```
 
-A versão atual de preparação é **1.0.0** (`versionCode 10003`).
+A versão estável atual é **1.0.0** (`versionCode 10003`).
 
 ## Privacidade
 
@@ -68,4 +68,4 @@ Veja também [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md), [docs/FDROID.md](
 
 Issues, correções e melhorias são bem-vindas. Pull requests públicos devem ser validados exclusivamente em runners hospedados pelo GitHub e não recebem credenciais de assinatura ou outros secrets de publicação.
 
-Antes da primeira submissão oficial ao F-Droid, o projeto deverá publicar uma tag estável e os metadados correspondentes.
+A tag estável `v1.0.0` e os metadados upstream do F-Droid estão publicados. Novas versões estáveis devem manter a mesma regra: código aprovado no `main`, tag `v*` e metadata coerente.
