@@ -3,18 +3,21 @@ name: Public source validation
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: public-source-validation-${{ github.event.pull_request.number }}
+  group: public-source-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - name: Checkout source
@@ -36,25 +39,114 @@ jobs:
         with:
           packages: "platform-tools platforms;android-36 build-tools;36.0.0"
 
-      - name: Verify F-Droid runtime is free of Google/Firebase dependencies
+      - name: Source privacy gate
+        shell: bash
         run: |
-          ./gradlew --no-daemon :app:dependencies --configuration fdroidReleaseRuntimeClasspath | tee fdroid-runtime.txt
-          if grep -E "com\.google\.android\.gms|com\.google\.firebase" fdroid-runtime.txt; then
-            echo "Forbidden proprietary dependency found in fdroidReleaseRuntimeClasspath"
+          set -euo pipefail
+
+          if git grep -nI -E 'Google Drive|Google Account|GOOGLE_SYNC|googleSync|play-services-auth|com\.google\.android\.gms|com\.google\.firebase' -- app docs README.md; then
+            echo "Remote sync or proprietary runtime integration found in the offline product."
             exit 1
           fi
 
-      - name: Assemble source variants
+          if git grep -nI -E 'android\.permission\.(INTERNET|ACCESS_NETWORK_STATE|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|CAMERA|RECORD_AUDIO|READ_CALENDAR|WRITE_CALENDAR|READ_EXTERNAL_STORAGE|WRITE_EXTERNAL_STORAGE|MANAGE_EXTERNAL_STORAGE|AD_ID)' -- app/src; then
+            echo "Forbidden sensitive permission found in app sources."
+            exit 1
+          fi
+
+      - name: Secret scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -nI -E '(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)' -- .; then
+            echo "Possible credential or private key found in tracked text."
+            exit 1
+          fi
+
+      - name: F-Droid runtime dependency gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon :app:dependencies --configuration fdroidReleaseRuntimeClasspath | tee fdroid-runtime.txt
+          if grep -E 'com\.google\.android\.gms|com\.google\.firebase|firebase-analytics|play-services-ads' fdroid-runtime.txt; then
+            echo "Forbidden proprietary or analytics dependency found in fdroidReleaseRuntimeClasspath."
+            exit 1
+          fi
+
+      - name: Unit tests
+        run: ./gradlew --no-daemon --stacktrace :app:testFdroidDebugUnitTest
+
+      - name: Lint F-Droid release
+        run: ./gradlew --no-daemon --stacktrace :app:lintFdroidRelease
+
+      - name: Assemble F-Droid variants
         run: |
           ./gradlew --no-daemon --stacktrace \
             :app:assembleFdroidDebug \
-            :app:assembleFdroidRelease \
-            :app:assembleGoogleDebug \
-            :app:assembleGoogleRelease
+            :app:assembleFdroidRelease
 
-      - name: Verify expected outputs
+      - name: APK privacy gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk"
+          test -f "$APK"
+          AAPT=$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)
+          "$AAPT" dump permissions "$APK" | tee apk-permissions.txt
+          if grep -E 'android\.permission\.(INTERNET|ACCESS_NETWORK_STATE|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|CAMERA|RECORD_AUDIO|READ_CALENDAR|WRITE_CALENDAR|READ_EXTERNAL_STORAGE|WRITE_EXTERNAL_STORAGE|MANAGE_EXTERNAL_STORAGE|AD_ID)' apk-permissions.txt; then
+            echo "Forbidden permission found in final APK."
+            exit 1
+          fi
+
+      - name: Verify APK outputs
         run: |
           test -f app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk
           test -f app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
-          test -f app/build/outputs/apk/google/debug/app-google-debug.apk
-          test -f app/build/outputs/apk/google/release/app-google-release-unsigned.apk
+
+  publish-source-release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create v1.0.0 source release if missing
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const tag = "v1.0.0";
+
+            try {
+              await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+              core.info("v1.0.0 release already exists; nothing to do.");
+              return;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+
+            const body = [
+              "Primeira versão estável do Num esquece.",
+              "",
+              "Aplicativo Android offline para lembretes persistentes: o lembrete só termina quando você resolve o assunto.",
+              "",
+              "Privacidade: sem conta, anúncios, analytics, permissão de Internet ou backup automático em nuvem.",
+              "",
+              "Esta GitHub Release publica o código-fonte oficial da v1.0.0. O APK de teste usado na validação interna não é publicado aqui como artefato oficial, pois utiliza assinatura de desenvolvimento. A distribuição assinada segue o processo documentado para F-Droid/assinatura externa."
+            ].join("\n");
+
+            const response = await github.rest.repos.createRelease({
+              owner,
+              repo,
+              tag_name: tag,
+              target_commitish: context.sha,
+              name: "Num esquece v1.0.0",
+              body,
+              draft: false,
+              prerelease: false
+            });
+
+            core.info(`Published ${response.data.html_url}`);
