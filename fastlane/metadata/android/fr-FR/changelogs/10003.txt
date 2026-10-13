@@ -1,0 +1,1 @@
+Première version stable. Rappels hors ligne persistants, récurrence, historique, échéances, trois niveaux d’insistance, quatre langues, aucune permission réseau et stockage local axé sur la confidentialité.

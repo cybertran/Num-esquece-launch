@@ -30,8 +30,8 @@ android {
         applicationId = "com.cybertran.numesquece"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10002
-        versionName = "1.0.0-rc3"
+        versionCode = 10003
+        versionName = "1.0.0"
 
         buildConfigField("String", "DONATION_URL", "\"\"")
         buildConfigField("String", "SOURCE_CODE_URL", "\"https://github.com/cybertran/Num-esquece-launch\"")
@@ -41,11 +41,6 @@ android {
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
-            buildConfigField("boolean", "GOOGLE_SYNC_AVAILABLE", "false")
-        }
-        create("google") {
-            dimension = "distribution"
-            buildConfigField("boolean", "GOOGLE_SYNC_AVAILABLE", "true")
         }
     }
 
@@ -104,9 +99,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
-
-    add("googleImplementation", "androidx.work:work-runtime-ktx:2.11.2")
-    add("googleImplementation", "com.google.android.gms:play-services-auth:22.0.0")
 
     val roomVersion = "2.8.5"
     implementation("androidx.room:room-runtime:$roomVersion")

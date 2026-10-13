@@ -1,0 +1,1 @@
+Primeira versão estável. Lembretes offline persistentes, recorrência, histórico, prazos, três níveis de insistência, quatro idiomas, sem permissões de rede e com armazenamento local voltado à privacidade.

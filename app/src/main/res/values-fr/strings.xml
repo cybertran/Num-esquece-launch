@@ -22,7 +22,7 @@
     <string name="intensity_dont_forget">Ne me laisse pas oublier</string>
     <string name="intensity_normal_explanation">Avertit et reste en attente dans l’application.</string>
     <string name="intensity_insistent_explanation">Si vous le fermez, il revient dans 15 minutes.</string>
-    <string name="intensity_dont_forget_explanation">Si vous le fermez, il revient dans 5 minutes.</string>
+    <string name="intensity_dont_forget_explanation">Tant qu’il reste en attente, il revient toutes les 5 minutes jusqu’à ce que vous le marquiez Fait ou le reportiez.</string>
     <string name="repeat_none">Ne pas répéter</string>
     <string name="repeat_daily">Tous les jours</string>
     <string name="repeat_weekly">Chaque semaine</string>
@@ -40,17 +40,17 @@
     <string name="channel_app_sound_description">Son personnalisé de Num esquece</string>
     <string name="notification_pending">Toujours en attente.</string>
     <string name="notification_insistent">Je vous rappellerai si vous fermez cette alerte.</string>
-    <string name="notification_dont_forget">Vous avez demandé de ne pas laisser passer ceci.</string>
+    <string name="notification_dont_forget">Vous avez demandé de ne pas laisser passer ceci. Je continuerai à vous le rappeler.</string>
 
     <string name="today">aujourd’hui</string>
     <string name="tomorrow">demain</string>
     <string name="relative_date_time">%1$s, %2$s</string>
-    <string name="until_time">Jusqu’à %1$s</string>
-    <string name="window_closed">Fenêtre terminée</string>
+    <string name="until_time">À résoudre avant %1$s</string>
+    <string name="window_closed">Échéance dépassée</string>
     <string name="since_time">Depuis %1$s</string>
-    <plurals name="snoozed_count"><item quantity="one"> · reporté %1$d fois</item><item quantity="other"> · reporté %1$d fois</item></plurals>
+    <plurals name="snoozed_count"><item quantity="one"> · reporté %1$d fois</item><item quantity="many"> · reporté %1$d fois</item><item quantity="other"> · reporté %1$d fois</item></plurals>
     <string name="completed_at">Terminé %1$s</string>
-    <plurals name="pending_attention"><item quantity="one">%1$d chose demande encore votre attention.</item><item quantity="other">%1$d choses demandent encore votre attention.</item></plurals>
+    <plurals name="pending_attention"><item quantity="one">%1$d chose demande encore votre attention.</item><item quantity="many">%1$d choses demandent encore votre attention.</item><item quantity="other">%1$d choses demandent encore votre attention.</item></plurals>
     <string name="section_pending">ENCORE EN ATTENTE</string>
     <string name="section_next">PROCHAIN</string>
     <string name="section_later">PLUS TARD</string>
@@ -66,16 +66,8 @@
     <string name="onboarding_fast_body">Enregistrez ce que vous ne devez pas oublier sans en faire un projet.</string>
     <string name="onboarding_intensity_title">Vous choisissez son niveau d’insistance</string>
     <string name="onboarding_intensity_body">Utilisez Normal, Insistant ou Ne me laisse pas oublier.</string>
-    <string name="onboarding_account_title">Compte facultatif</string>
-    <string name="onboarding_account_body">Fonctionne sans compte. Si vous le souhaitez, utilisez votre compte Google pour retrouver vos rappels sur plusieurs appareils.</string>
-    <string name="sync_title">Synchronisation</string>
-    <string name="onboarding_sync_body">Vous pouvez utiliser votre compte Google pour synchroniser. Num esquece ne lit pas vos e-mails ; il utilise uniquement l’espace privé de l’application dans Google Drive.</string>
-    <string name="google_account_connected">Compte Google connecté</string>
-    <string name="connecting">Connexion…</string>
-    <string name="connect_google_account">Connecter un compte Google</string>
-    <string name="onboarding_sync_later">Vous pouvez aussi continuer sans compte et vous connecter plus tard dans les Paramètres.</string>
-    <string name="onboarding_local_title">Local par défaut</string>
-    <string name="onboarding_local_body">Aucun compte obligatoire et aucune publicité. Vos rappels restent sur l’appareil.</string>
+<string name="onboarding_local_title">Hors ligne par conception</string>
+    <string name="onboarding_local_body">Sans compte, publicité, permission Internet ni sauvegarde cloud automatique. Vos rappels restent sur cet appareil.</string>
     <string name="enable_notifications">Activer les notifications</string>
     <string name="allow_exact_alarms">Autoriser les alarmes exactes</string>
     <string name="start">Commencer</string>
@@ -90,16 +82,16 @@
     <string name="quick_tomorrow_9">Demain 9 h</string>
     <string name="quick_in_1h">Dans 1 h</string>
     <string name="how_to_remind">Comment souhaitez-vous être rappelé ?</string>
-    <string name="time_window">Fenêtre horaire</string>
-    <string name="within_window">Peut se produire dans une fenêtre horaire</string>
-    <string name="window_explanation">L’application indique quand cette fenêtre se termine.</string>
+    <string name="time_window">Échéance pour résoudre</string>
+    <string name="within_window">Définir une échéance</string>
+    <string name="window_explanation">Reporter modifie la prochaine alerte, pas cette échéance.</string>
     <string name="repeat">Répéter</string>
     <string name="repeat_prefix">Répéter</string>
     <string name="save_reminder">Enregistrer le rappel</string>
     <string name="delete_reminder_title">Supprimer le rappel ?</string>
     <string name="delete_reminder_body">Cette action supprime ce rappel de l’appareil.</string>
     <string name="hours_short">%1$d h</string>
-    <plurals name="days_short"><item quantity="one">%1$d j</item><item quantity="other">%1$d j</item></plurals>
+    <plurals name="days_short"><item quantity="one">%1$d j</item><item quantity="many">%1$d j</item><item quantity="other">%1$d j</item></plurals>
     <string name="selected_value">✓ %1$s</string>
 
     <string name="reliability">Fiabilité</string>
@@ -112,19 +104,12 @@
     <string name="listen_default_sound">Écouter le son par défaut</string>
     <string name="silent_description">Les notifications continuent d’apparaître, mais sans son ni vibration.</string>
     <string name="android_channel_notice">Android permet de modifier chaque catégorie de notification dans les paramètres système ; ce choix est toujours prioritaire.</string>
-    <string name="only_this_device">Uniquement sur cet appareil</string>
-    <string name="sync_description">Facultatif. Synchronise les rappels et l’historique via l’espace privé de Num esquece dans Google Drive. L’application ne lit ni Gmail ni votre boîte de réception.</string>
-    <string name="last_sync_at">Dernière synchronisation : %1$s</string>
-    <string name="syncing">Synchronisation…</string>
-    <string name="sync_now">Synchroniser maintenant</string>
-    <string name="choose_another_google_account">Choisir un autre compte Google</string>
-    <string name="disconnect_google_account">Déconnecter le compte Google</string>
-    <string name="appearance">Apparence</string>
+<string name="appearance">Apparence</string>
     <string name="system_colors">Couleurs du système</string>
     <string name="material_you_description">Utilise Material You lorsqu’il est disponible.</string>
+    <string name="data">Données</string>
     <string name="privacy">Confidentialité</string>
-    <string name="privacy_google">Le cœur de Num esquece fonctionne localement, sans compte obligatoire et sans publicité. Si vous activez la synchronisation, une copie de vos rappels est stockée dans l’espace privé de l’application sur votre Google Drive.</string>
-    <string name="privacy_local">Num esquece fonctionne localement, sans compte obligatoire et sans publicité.</string>
+<string name="privacy_local">Num esquece fonctionne entièrement hors ligne, sans compte, publicité, analytics ni sauvegarde automatique dans le cloud.</string>
     <string name="support_num_esquece">Soutenir Num esquece</string>
     <string name="support_description">Num esquece est gratuit et open source. S’il vous est utile, un don volontaire aide à poursuivre le développement.</string>
     <string name="make_donation">Faire un don</string>
@@ -132,21 +117,21 @@
     <string name="open_source_description">Logiciel libre et gratuit, sous licence GPL-3.0-or-later. Sans publicité.</string>
     <string name="view_source_code">Voir le code source</string>
 
-    <string name="sync_connection_not_completed">Impossible de terminer la connexion au compte Google. Réessayez ou continuez sans compte.</string>
-    <string name="sync_authorization_not_completed">Impossible de terminer l’autorisation Google.</string>
-    <string name="sync_revocation_failed">La synchronisation a été désactivée, mais l’autorisation Google n’a pas pu être révoquée pour le moment.</string>
-    <string name="sync_reconfirm_account">Le compte Google doit être confirmé à nouveau dans l’application.</string>
-    <string name="sync_no_authorization_screen">Google n’a pas fourni d’écran d’autorisation.</string>
-    <string name="sync_open_authorization_failed">Impossible d’ouvrir l’autorisation Google.</string>
-    <string name="sync_connection_failed">Impossible de se connecter au compte Google. Vérifiez la configuration Google Drive de cette application.</string>
-    <string name="sync_invalid_authorization">Google n’a pas renvoyé d’autorisation valide.</string>
-    <string name="sync_drive_failed">Impossible de synchroniser avec Google Drive.</string>
-    <plurals name="sync_reminders"><item quantity="one">%1$d rappel synchronisé.</item><item quantity="other">%1$d rappels synchronisés.</item></plurals>
-    <string name="sync_check_connection">Vérifiez votre connexion Internet.</string>
-    <string name="sync_oauth_mismatch">La configuration OAuth ne correspond pas au package ou au certificat de cet APK.</string>
-    <string name="sync_google_unreachable">Impossible de joindre les services Google. Vérifiez votre connexion.</string>
-    <string name="sync_authorization_cancelled">L’autorisation Google n’a pas été terminée.</string>
-    <string name="sync_google_internal_error">Les services Google ont renvoyé une erreur interne. Réessayez.</string>
-    <string name="sync_google_code">Google a renvoyé le code %1$d.</string>
-    <string name="sync_try_again">Réessayez.</string>
+    <string name="notification_hidden_content">Vous avez un rappel en attente.</string>
+    <string name="clear_history">Effacer l’historique</string>
+    <string name="clear_history_title">Effacer les rappels terminés ?</string>
+    <string name="clear_history_body">Cela supprime définitivement tous les rappels terminés de cet appareil.</string>
+    <string name="privacy_network">Réseau</string>
+    <string name="privacy_network_value">Aucune permission Internet</string>
+    <string name="privacy_account">Compte</string>
+    <string name="privacy_analytics">Analytics</string>
+    <string name="privacy_server">Serveur</string>
+    <string name="privacy_none">Aucun</string>
+    <string name="privacy_backup">Sauvegarde automatique</string>
+    <string name="privacy_backup_value">Désactivée</string>
+    <string name="show_lockscreen_content">Afficher le contenu sur l’écran verrouillé</string>
+    <string name="show_lockscreen_content_description">Désactivé par défaut. Sinon, l’écran verrouillé indique seulement qu’un rappel est en attente.</string>
+    <string name="delete_all_data">Supprimer toutes les données</string>
+    <string name="delete_all_data_title">Supprimer toutes les données de Num esquece ?</string>
+    <string name="delete_all_data_body">Cela supprime définitivement les rappels, l’historique et les préférences de l’application sur cet appareil.</string>
 </resources>

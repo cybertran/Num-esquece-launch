@@ -11,7 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -29,7 +28,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.History
@@ -64,14 +62,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.cybertran.numesquece.BuildConfig
-import com.cybertran.numesquece.R
 import com.cybertran.numesquece.NotificationSoundMode
+import com.cybertran.numesquece.R
 import com.cybertran.numesquece.ReminderViewModel
 import com.cybertran.numesquece.SettingsStore
 import com.cybertran.numesquece.data.ReminderEntity
-import com.cybertran.numesquece.sync.GoogleDriveSyncManager
-import com.cybertran.numesquece.sync.GoogleSyncState
 import com.cybertran.numesquece.ui.theme.NumEsqueceTheme
 
 internal enum class Destination { NOW, REMINDERS, HISTORY, SETTINGS }
@@ -80,22 +75,16 @@ internal enum class Destination { NOW, REMINDERS, HISTORY, SETTINGS }
 fun NumEsqueceRoot(
     viewModel: ReminderViewModel,
     settings: SettingsStore,
-    googleSyncManager: GoogleDriveSyncManager,
-    onConnectGoogle: () -> Unit,
-    onSyncGoogle: () -> Unit,
-    onDisconnectGoogle: () -> Unit,
 ) {
     var dynamicColor by remember { mutableStateOf(settings.dynamicColor) }
     var onboardingDone by remember { mutableStateOf(settings.onboardingDone) }
     var notificationSoundMode by remember { mutableStateOf(settings.notificationSoundMode) }
-    val syncState by googleSyncManager.state.collectAsState()
+    var showContentOnLockScreen by remember { mutableStateOf(settings.showContentOnLockScreen) }
 
     NumEsqueceTheme(dynamicColor = dynamicColor) {
         Surface(modifier = Modifier.fillMaxSize()) {
             if (!onboardingDone) {
                 OnboardingScreen(
-                    syncState = syncState,
-                    onConnectGoogle = onConnectGoogle,
                     onFinished = {
                         settings.onboardingDone = true
                         onboardingDone = true
@@ -114,10 +103,20 @@ fun NumEsqueceRoot(
                         settings.notificationSoundMode = it
                         notificationSoundMode = it
                     },
-                    syncState = syncState,
-                    onConnectGoogle = onConnectGoogle,
-                    onSyncGoogle = onSyncGoogle,
-                    onDisconnectGoogle = onDisconnectGoogle,
+                    showContentOnLockScreen = showContentOnLockScreen,
+                    onShowContentOnLockScreenChanged = {
+                        settings.showContentOnLockScreen = it
+                        showContentOnLockScreen = it
+                    },
+                    onDeleteAllData = {
+                        viewModel.clearAll {
+                            settings.clearAll()
+                            dynamicColor = false
+                            notificationSoundMode = NotificationSoundMode.NUM_ESQUECE
+                            showContentOnLockScreen = false
+                            onboardingDone = false
+                        }
+                    },
                 )
             }
         }
@@ -125,17 +124,11 @@ fun NumEsqueceRoot(
 }
 
 @Composable
-private fun OnboardingScreen(
-    syncState: GoogleSyncState,
-    onConnectGoogle: () -> Unit,
-    onFinished: () -> Unit,
-) {
+private fun OnboardingScreen(onFinished: () -> Unit) {
     val context = LocalContext.current
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { }
-    val syncBusy = syncState.phase == com.cybertran.numesquece.sync.SyncPhase.CONNECTING ||
-        syncState.phase == com.cybertran.numesquece.sync.SyncPhase.SYNCING
 
     Column(
         modifier = Modifier
@@ -178,65 +171,11 @@ private fun OnboardingScreen(
             body = stringResource(R.string.onboarding_intensity_body),
             icon = Icons.Rounded.Alarm,
         )
-        if (BuildConfig.GOOGLE_SYNC_AVAILABLE) {
-            OnboardingPoint(
-                title = stringResource(R.string.onboarding_account_title),
-                body = stringResource(R.string.onboarding_account_body),
-                icon = Icons.Rounded.AccountCircle,
-            )
-
-            Spacer(Modifier.height(24.dp))
-            Text(
-                stringResource(R.string.sync_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                stringResource(R.string.onboarding_sync_body),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp, bottom = 10.dp),
-            )
-
-            OutlinedButton(
-                onClick = onConnectGoogle,
-                enabled = !syncBusy && !syncState.connected,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    when {
-                        syncState.connected -> stringResource(R.string.google_account_connected)
-                        syncBusy -> stringResource(R.string.connecting)
-                        else -> stringResource(R.string.connect_google_account)
-                    }
-                )
-            }
-
-            syncState.message?.let { message ->
-                Text(
-                    message,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (syncState.phase == com.cybertran.numesquece.sync.SyncPhase.ERROR) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.primary
-                    },
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-
-            Text(
-                stringResource(R.string.onboarding_sync_later),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-        } else {
-            OnboardingPoint(
-                title = stringResource(R.string.onboarding_local_title),
-                body = stringResource(R.string.onboarding_local_body),
-                icon = Icons.Rounded.CheckCircle,
-            )
-        }
+        OnboardingPoint(
+            title = stringResource(R.string.onboarding_local_title),
+            body = stringResource(R.string.onboarding_local_body),
+            icon = Icons.Rounded.CheckCircle,
+        )
 
         Spacer(Modifier.height(22.dp))
         Button(
@@ -263,7 +202,9 @@ private fun OnboardingScreen(
         }
 
         Spacer(Modifier.height(18.dp))
-        Button(onClick = onFinished, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.start)) }
+        Button(onClick = onFinished, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.start))
+        }
         Text(
             stringResource(R.string.onboarding_options_later),
             style = MaterialTheme.typography.bodySmall,
@@ -295,11 +236,11 @@ private fun NumEsqueceApp(
     onDynamicColorChanged: (Boolean) -> Unit,
     notificationSoundMode: NotificationSoundMode,
     onNotificationSoundModeChanged: (NotificationSoundMode) -> Unit,
-    syncState: GoogleSyncState,
-    onConnectGoogle: () -> Unit,
-    onSyncGoogle: () -> Unit,
-    onDisconnectGoogle: () -> Unit,
+    showContentOnLockScreen: Boolean,
+    onShowContentOnLockScreenChanged: (Boolean) -> Unit,
+    onDeleteAllData: () -> Unit,
 ) {
+    val context = LocalContext.current
     val reminders by viewModel.reminders.collectAsState()
     var destination by remember { mutableStateOf(Destination.NOW) }
     var editingReminder by remember { mutableStateOf<ReminderEntity?>(null) }
@@ -389,18 +330,26 @@ private fun NumEsqueceApp(
                     editorOpen = true
                 },
             )
-            Destination.HISTORY -> HistoryScreen(reminders, padding)
+            Destination.HISTORY -> HistoryScreen(
+                reminders = reminders,
+                padding = padding,
+                onClearHistory = viewModel::clearHistory,
+            )
             Destination.SETTINGS -> SettingsScreen(
                 padding = padding,
                 dynamicColor = dynamicColor,
                 onDynamicColorChanged = onDynamicColorChanged,
-                onTestReminder = viewModel::createTestReminder,
+                onTestReminder = {
+                    viewModel.createTestReminder(
+                        context.getString(R.string.test_reminder_title),
+                        context.getString(R.string.test_reminder_notes),
+                    )
+                },
                 notificationSoundMode = notificationSoundMode,
                 onNotificationSoundModeChanged = onNotificationSoundModeChanged,
-                syncState = syncState,
-                onConnectGoogle = onConnectGoogle,
-                onSyncGoogle = onSyncGoogle,
-                onDisconnectGoogle = onDisconnectGoogle,
+                showContentOnLockScreen = showContentOnLockScreen,
+                onShowContentOnLockScreenChanged = onShowContentOnLockScreenChanged,
+                onDeleteAllData = onDeleteAllData,
             )
         }
     }

@@ -1,0 +1,1 @@
+Primera versión estable. Recordatorios sin conexión persistentes, recurrencia, historial, plazos, tres niveles de insistencia, cuatro idiomas, sin permisos de red y con almacenamiento local orientado a la privacidad.

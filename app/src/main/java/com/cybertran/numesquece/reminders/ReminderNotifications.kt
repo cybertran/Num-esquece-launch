@@ -1,17 +1,21 @@
 package com.cybertran.numesquece.reminders
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.cybertran.numesquece.MainActivity
 import com.cybertran.numesquece.NotificationSoundMode
 import com.cybertran.numesquece.R
@@ -86,7 +90,7 @@ object ReminderNotifications {
         manager.createNotificationChannels(channels)
     }
 
-    fun show(context: Context, reminder: ReminderEntity) {
+    fun show(context: Context, reminder: ReminderEntity): Boolean {
         val openApp = PendingIntent.getActivity(
             context,
             reminder.id.hashCode(),
@@ -105,13 +109,29 @@ object ReminderNotifications {
             }
         )
 
-        val notification = NotificationCompat.Builder(context, channelFor(context, reminder))
+        val channelId = channelFor(context, reminder)
+        val showOnLockScreen = SettingsStore(context).showContentOnLockScreen
+        val publicVersion = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.app_name))
+            .setContentText(context.getString(R.string.notification_hidden_content))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .build()
+
+        val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(reminder.title)
             .setContentText(supportingText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(supportingText))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(
+                if (showOnLockScreen) NotificationCompat.VISIBILITY_PUBLIC
+                else NotificationCompat.VISIBILITY_PRIVATE
+            )
+            .setPublicVersion(publicVersion)
             .setAutoCancel(false)
             .setContentIntent(openApp)
             .setDeleteIntent(dismissed)
@@ -119,9 +139,18 @@ object ReminderNotifications {
             .addAction(0, context.getString(R.string.snooze_10), snooze)
             .build()
 
-        runCatching {
+        val canPostNotifications =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+
+        if (!canPostNotifications) return false
+
+        return runCatching {
             NotificationManagerCompat.from(context).notify(reminder.id.hashCode(), notification)
-        }
+        }.isSuccess
     }
 
     fun preview(

@@ -2,39 +2,37 @@
 
 Última atualização: 12/10/2026
 
-O Num esquece foi projetado para funcionar principalmente de forma local no dispositivo Android.
+O Num esquece foi projetado para funcionar integralmente de forma local no dispositivo Android.
 
-## Flavor F-Droid
+## Rede e serviços externos
 
-A versão destinada ao F-Droid funciona sem Conta Google, não inclui Google Play Services e não declara as permissões Android `INTERNET` ou `ACCESS_NETWORK_STATE`.
+O aplicativo não declara as permissões Android `INTERNET` ou `ACCESS_NETWORK_STATE`. Não existe conta, sincronização remota, servidor próprio, analytics, telemetria, publicidade ou crash reporting integrado.
 
-Títulos, observações, horários, histórico, intensidade e demais dados dos lembretes são armazenados localmente pelo aplicativo.
+Links externos, como código-fonte ou eventual página de apoio, são abertos em outro aplicativo escolhido pelo usuário. O Num esquece não realiza a conexão de rede por conta própria.
 
-O Num esquece não exibe anúncios, não inclui analytics e não vende dados pessoais.
+## Dados armazenados
 
-## Flavor Google
+Títulos, observações, horários, prazos, histórico, intensidade, repetição e demais dados dos lembretes são armazenados no armazenamento privado do aplicativo, protegido pelo sandbox do Android.
 
-O projeto mantém separadamente um flavor `google`, que não faz parte do APK planejado para o repositório oficial do F-Droid.
+Ao excluir um lembrete, o registro é removido do banco local. O usuário também pode limpar o histórico de itens concluídos ou apagar todos os dados do aplicativo.
 
-Quando o usuário ativa voluntariamente a sincronização nesse flavor, o aplicativo solicita o escopo:
+## Backup automático
 
-`https://www.googleapis.com/auth/drive.appdata`
+O backup automático do Android está desativado. As regras de backup do projeto também excluem explicitamente os dados do aplicativo de backup em nuvem e de transferência automática entre dispositivos.
 
-Esse acesso é destinado à área privada `appDataFolder` do Google Drive. O aplicativo não usa a Gmail API e não solicita acesso geral aos arquivos pessoais do Google Drive.
+Uma futura exportação manual, se implementada, deverá depender de uma ação explícita do usuário.
+
+## Tela bloqueada
+
+Por padrão, o conteúdo dos lembretes é ocultado na versão pública da notificação exibida na tela bloqueada. O usuário pode optar por mostrar esse conteúdo nas Configurações. As preferências de privacidade do próprio Android continuam tendo precedência.
 
 ## Permissões Android
 
-O flavor F-Droid pode usar permissões necessárias às funções locais, como notificações, alarmes precisos e recebimento da inicialização do aparelho para reagendar lembretes.
-
-As permissões de Internet e estado da rede existem somente no manifesto do flavor `google`.
+O aplicativo solicita apenas permissões ligadas ao funcionamento dos lembretes, como notificações, alarmes exatos e recebimento da inicialização do aparelho para reagendar lembretes.
 
 ## Doações
 
 Se uma página de apoio for configurada, o aplicativo pode exibir um botão de doação voluntária que abre essa página no navegador ou aplicativo externo escolhido pelo usuário. A doação não é necessária para usar o aplicativo e não desbloqueia funcionalidades.
-
-## Servidor próprio
-
-O núcleo do Num esquece não depende de servidor próprio para armazenar lembretes.
 
 ## Alterações
 

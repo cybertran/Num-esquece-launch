@@ -29,19 +29,18 @@ class SettingsStore(context: Context) {
         }.getOrDefault(NotificationSoundMode.NUM_ESQUECE)
         set(value) = prefs.edit().putString(KEY_NOTIFICATION_SOUND_MODE, value.name).apply()
 
-    var googleSyncEnabled: Boolean
-        get() = prefs.getBoolean(KEY_GOOGLE_SYNC_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_GOOGLE_SYNC_ENABLED, value).apply()
+    var showContentOnLockScreen: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_CONTENT_ON_LOCK_SCREEN, false)
+        set(value) = prefs.edit().putBoolean(KEY_SHOW_CONTENT_ON_LOCK_SCREEN, value).apply()
 
-    var lastGoogleSyncAt: Long
-        get() = prefs.getLong(KEY_LAST_GOOGLE_SYNC_AT, 0L)
-        set(value) = prefs.edit().putLong(KEY_LAST_GOOGLE_SYNC_AT, value).apply()
+    fun clearAll() {
+        prefs.edit().clear().commit()
+    }
 
     companion object {
         private const val KEY_ONBOARDING_DONE = "onboarding_done"
         private const val KEY_DYNAMIC_COLOR = "dynamic_color"
         private const val KEY_NOTIFICATION_SOUND_MODE = "notification_sound_mode"
-        private const val KEY_GOOGLE_SYNC_ENABLED = "google_sync_enabled"
-        private const val KEY_LAST_GOOGLE_SYNC_AT = "last_google_sync_at"
+        private const val KEY_SHOW_CONTENT_ON_LOCK_SCREEN = "show_content_on_lock_screen"
     }
 }

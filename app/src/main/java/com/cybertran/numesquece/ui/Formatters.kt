@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 internal fun reminderStateText(context: Context, reminder: ReminderEntity, now: Long): String {
-    val windowEnd = reminder.windowEndAt
+    val windowEnd = reminder.deadlineAt
     val prefix = when {
         reminder.dueAt > now -> formatWhen(context, reminder.dueAt)
         windowEnd != null && now <= windowEnd -> context.getString(R.string.until_time, formatTime(context, windowEnd))

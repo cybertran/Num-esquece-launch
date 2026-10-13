@@ -1,9 +1,7 @@
 package com.cybertran.numesquece.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,12 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,10 +28,12 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -158,7 +158,7 @@ private fun ReminderActionCard(
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onOpen(reminder) },
         colors = CardDefaults.cardColors(
-            containerColor = if (reminder.windowEndAt != null && now > reminder.windowEndAt) {
+            containerColor = if (reminder.deadlineAt != null && now > reminder.deadlineAt) {
                 MaterialTheme.colorScheme.errorContainer
             } else MaterialTheme.colorScheme.surfaceVariant
         ),
@@ -173,7 +173,7 @@ private fun ReminderActionCard(
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }
-                IntensityDot(reminder.intensityValue())
+                IntensityLabel(reminder.intensityValue())
             }
             Spacer(Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -205,19 +205,25 @@ private fun ReminderCompactCard(reminder: ReminderEntity, now: Long, onOpen: (Re
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            IntensityDot(reminder.intensityValue())
+            IntensityLabel(reminder.intensityValue())
         }
     }
 }
 
 @Composable
-private fun IntensityDot(intensity: ReminderIntensity) {
+private fun IntensityLabel(intensity: ReminderIntensity) {
     val color = when (intensity) {
-        ReminderIntensity.NORMAL -> MaterialTheme.colorScheme.outline
+        ReminderIntensity.NORMAL -> MaterialTheme.colorScheme.onSurfaceVariant
         ReminderIntensity.INSISTENT -> MaterialTheme.colorScheme.secondary
         ReminderIntensity.DONT_LET_ME_FORGET -> MaterialTheme.colorScheme.primary
     }
-    Box(Modifier.size(12.dp).background(color, CircleShape))
+    Text(
+        text = stringResource(intensity.labelRes),
+        style = MaterialTheme.typography.labelMedium,
+        color = color,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(start = 12.dp),
+    )
 }
 
 @Composable
@@ -246,11 +252,12 @@ internal fun ReminderListScreen(
 }
 
 @Composable
-internal fun HistoryScreen(reminders: List<ReminderEntity>, padding: PaddingValues) {
+internal fun HistoryScreen(reminders: List<ReminderEntity>, padding: PaddingValues, onClearHistory: () -> Unit) {
     val context = LocalContext.current
     val completed = reminders
         .filter { it.statusValue() == ReminderStatus.COMPLETED }
         .sortedByDescending { it.completedAt ?: 0L }
+    var confirmClear by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),
@@ -260,6 +267,14 @@ internal fun HistoryScreen(reminders: List<ReminderEntity>, padding: PaddingValu
         if (completed.isEmpty()) {
             item { EmptyListMessage(stringResource(R.string.history_empty)) }
         } else {
+            item {
+                OutlinedButton(
+                    onClick = { confirmClear = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.clear_history))
+                }
+            }
             items(completed, key = { it.id }) { reminder ->
                 Card(Modifier.fillMaxWidth()) {
                     ListItem(
@@ -272,6 +287,27 @@ internal fun HistoryScreen(reminders: List<ReminderEntity>, padding: PaddingValu
                 }
             }
         }
+    }
+
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            title = { Text(stringResource(R.string.clear_history_title)) },
+            text = { Text(stringResource(R.string.clear_history_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onClearHistory()
+                        confirmClear = false
+                    }
+                ) { Text(stringResource(R.string.clear_history)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClear = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
     }
 }
 

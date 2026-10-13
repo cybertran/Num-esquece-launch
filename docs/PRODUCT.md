@@ -8,13 +8,13 @@ Num esquece deve ser menor e mais focado que um gerenciador de tarefas. O objeti
 
 ## Linguagem
 
-A interface deve falar português natural. Evitar termos como “prioridade”, “workflow” ou códigos de urgência quando uma frase simples resolve.
+A interface deve falar de forma natural. Evitar termos como “prioridade”, “workflow” ou códigos de urgência quando uma frase simples resolve.
 
 Os três níveis de comportamento são:
 
 - **Normal** — avisa uma vez e continua aparecendo como pendente no app.
 - **Insistente** — se a pessoa dispensar a notificação, o app volta a avisar depois.
-- **Num deixa eu esquecer** — comportamento mais insistente, explicitamente escolhido pelo usuário.
+- **Num deixa eu esquecer** — enquanto o lembrete continuar pendente, volta a alertar periodicamente até a pessoa marcar **Fiz** ou **Adiar**.
 
 ## Estrutura principal
 
@@ -28,14 +28,14 @@ Configurações ficam fora da barra inferior. A ação principal é sempre **+ L
 
 ## Princípios
 
-Criação rápida, pendência explícita, linguagem sem culpa, confiabilidade visível e privacidade simples.
+Criação rápida, pendência explícita, linguagem sem culpa, confiabilidade visível e privacidade verificável.
 
-O aplicativo é livre, gratuito, sem anúncios e local-first. A distribuição principal planejada é pelo F-Droid.
+O aplicativo é livre, gratuito, sem anúncios e **offline por construção**. Não possui integração de rede nem sincronização remota. A distribuição principal planejada é pelo F-Droid.
 
-O flavor `fdroid` funciona sem conta e sem rede. O flavor `google`, mantido separadamente, pode oferecer sincronização opcional pelo Google Drive fora do APK destinado ao F-Droid.
+O campo de prazo significa **resolver até**. Adiar um alerta muda apenas o próximo aviso e não altera o prazo definido.
 
 Doações são voluntárias, não desbloqueiam recursos e não alteram o funcionamento do aplicativo.
 
 ## Próximas etapas
 
-Validar o comportamento em aparelhos reais; revisar licenças de sons e artes; testar acessibilidade, fonte ampliada e TalkBack; aprimorar backup/exportação local; preparar screenshots e metadados do F-Droid; publicar a primeira versão estável e abrir a solicitação de inclusão.
+Validar o comportamento em aparelhos reais; testar acessibilidade, fonte ampliada e TalkBack; avaliar exportação e importação local sob ação explícita do usuário; preparar screenshots e metadados do F-Droid; publicar a primeira versão estável e abrir a solicitação de inclusão.
