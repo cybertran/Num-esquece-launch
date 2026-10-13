@@ -1,6 +1,6 @@
 # Assinatura e builds de distribuição
 
-O Num esquece possui dois flavors de distribuição.
+O Num esquece mantém um único flavor de distribuição: `fdroid`.
 
 ## F-Droid
 
@@ -14,11 +14,9 @@ Build local:
 
 Sem credenciais de assinatura, o Gradle produz um APK release não assinado adequado para validação do build.
 
-## Flavor Google
+## Assinatura externa opcional
 
-O flavor `google` preserva a integração opcional com Google Drive para distribuições externas ao F-Droid.
-
-A assinatura externa usa uma chave de produção mantida fora do repositório. As variáveis esperadas são:
+Se o projeto distribuir diretamente um APK fora do F-Droid, a assinatura externa usa uma chave de produção mantida fora do repositório. As variáveis esperadas são:
 
 - `NUM_ESQUECE_RELEASE_STORE_FILE`
 - `NUM_ESQUECE_RELEASE_STORE_PASSWORD`
@@ -28,7 +26,7 @@ A assinatura externa usa uma chave de produção mantida fora do repositório. A
 Build:
 
 ```bash
-./gradlew --no-daemon :app:assembleGoogleRelease
+./gradlew --no-daemon :app:assembleFdroidRelease
 ```
 
 A chave privada e as senhas nunca devem ser versionadas.
