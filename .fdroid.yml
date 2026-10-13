@@ -1,0 +1,25 @@
+Categories:
+  - Time
+License: GPL-3.0-or-later
+AuthorName: cybertran
+SourceCode: https://github.com/cybertran/Num-esquece-launch
+IssueTracker: https://github.com/cybertran/Num-esquece-launch/issues
+Changelog: https://github.com/cybertran/Num-esquece-launch/releases
+
+AutoName: Num esquece
+
+RepoType: git
+Repo: https://github.com/cybertran/Num-esquece-launch.git
+
+Builds:
+  - versionName: 1.0.0
+    versionCode: 10003
+    commit: v1.0.0
+    subdir: app
+    gradle:
+      - fdroid
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.0
+CurrentVersionCode: 10003
