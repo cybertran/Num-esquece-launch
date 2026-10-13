@@ -1,12 +1,13 @@
 package com.cybertran.numesquece
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.cybertran.numesquece.ui.NumEsqueceRoot
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,18 +21,15 @@ class MainActivity : ComponentActivity() {
             NumEsqueceRoot(
                 viewModel = viewModel,
                 settings = app.settings,
-                googleSyncManager = app.googleSyncManager,
-                onConnectGoogle = { app.googleSyncManager.connect(this@MainActivity) },
-                onSyncGoogle = { app.googleSyncManager.syncNow(this@MainActivity) },
-                onDisconnectGoogle = app.googleSyncManager::disconnect,
             )
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onResume() {
+        super.onResume()
         val app = application as NumEsqueceApplication
-        if (app.googleSyncManager.handleActivityResult(requestCode, resultCode, data)) return
-        super.onActivityResult(requestCode, resultCode, data)
+        lifecycleScope.launch {
+            app.repository.rescheduleActive()
+        }
     }
 }
