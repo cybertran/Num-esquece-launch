@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Java 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -62,6 +63,54 @@ jobs:
             echo "Possible credential or private key found in tracked text."
             exit 1
           fi
+
+      - name: F-Droid metadata consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .fdroid.yml
+
+          python3 - <<'PY'
+          import re
+          import subprocess
+          from pathlib import Path
+
+          metadata = Path(".fdroid.yml").read_text(encoding="utf-8")
+
+          def field(name: str) -> str:
+              match = re.search(rf"^\s*{re.escape(name)}:\s*['\"]?([^'\"\n]+)['\"]?\s*$", metadata, re.MULTILINE)
+              if not match:
+                  raise SystemExit(f"Missing F-Droid metadata field: {name}")
+              return match.group(1).strip()
+
+          version_name = field("versionName")
+          version_code = int(field("versionCode"))
+          commit = field("commit")
+          current_version = field("CurrentVersion")
+          current_version_code = int(field("CurrentVersionCode"))
+
+          if version_name != current_version or version_code != current_version_code:
+              raise SystemExit("F-Droid current version fields do not match the build entry.")
+
+          subprocess.run(["git", "rev-parse", "--verify", f"{commit}^{{commit}}"], check=True, stdout=subprocess.DEVNULL)
+          gradle = subprocess.check_output(["git", "show", f"{commit}:app/build.gradle.kts"], text=True)
+
+          gradle_name = re.search(r'versionName\s*=\s*"([^"]+)"', gradle)
+          gradle_code = re.search(r'versionCode\s*=\s*(\d+)', gradle)
+          if not gradle_name or not gradle_code:
+              raise SystemExit("Could not read version from tagged app/build.gradle.kts.")
+
+          if gradle_name.group(1) != version_name or int(gradle_code.group(1)) != version_code:
+              raise SystemExit("F-Droid metadata version does not match the tagged source.")
+
+          if "gradle:\n      - fdroid" not in metadata:
+              raise SystemExit("F-Droid build recipe must use the fdroid flavor.")
+
+          if "Repo: https://github.com/cybertran/Num-esquece-launch.git" not in metadata:
+              raise SystemExit("Unexpected F-Droid source repository.")
+
+          print(f"F-Droid metadata matches {commit}: {version_name} ({version_code})")
+          PY
 
       - name: F-Droid runtime dependency gate
         shell: bash
