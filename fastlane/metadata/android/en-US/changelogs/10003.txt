@@ -1,0 +1,1 @@
+First stable release. Persistent offline reminders, recurring reminders, history, deadlines, three reminder intensities, four interface languages, no network permissions, and privacy-focused local storage.
