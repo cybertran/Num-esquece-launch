@@ -1,6 +1,5 @@
 package com.cybertran.numesquece
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,7 +13,6 @@ import kotlinx.coroutines.launch
 
 class ReminderViewModel(
     private val repository: ReminderRepository,
-    private val context: Context,
 ) : ViewModel() {
     val reminders = repository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -38,12 +36,23 @@ class ReminderViewModel(
         viewModelScope.launch { repository.delete(id) }
     }
 
-    fun createTestReminder() {
+    fun clearHistory() {
+        viewModelScope.launch { repository.clearHistory() }
+    }
+
+    fun clearAll(onCleared: (() -> Unit)? = null) {
+        viewModelScope.launch {
+            repository.clearAll()
+            onCleared?.invoke()
+        }
+    }
+
+    fun createTestReminder(title: String, notes: String) {
         val now = System.currentTimeMillis()
         save(
             ReminderEntity(
-                title = context.getString(R.string.test_reminder_title),
-                notes = context.getString(R.string.test_reminder_notes),
+                title = title,
+                notes = notes,
                 dueAt = now + 60_000L,
                 intensity = ReminderIntensity.NORMAL.name,
                 repeatMode = RepeatMode.NONE.name,
@@ -54,7 +63,7 @@ class ReminderViewModel(
     class Factory(private val app: NumEsqueceApplication) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ReminderViewModel(app.repository, app.applicationContext) as T
+            return ReminderViewModel(app.repository) as T
         }
     }
 }
