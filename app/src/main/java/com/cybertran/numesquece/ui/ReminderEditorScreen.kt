@@ -78,14 +78,16 @@ internal fun ReminderEditorScreen(
     var intensity by remember(reminder?.id) { mutableStateOf(reminder?.intensityValue() ?: ReminderIntensity.NORMAL) }
     var repeatMode by remember(reminder?.id) { mutableStateOf(reminder?.repeatModeValue() ?: RepeatMode.NONE) }
     var repeatIntervalDays by remember(reminder?.id) { mutableStateOf(reminder?.repeatIntervalDays ?: 30) }
-    var windowEnabled by remember(reminder?.id) { mutableStateOf(reminder?.windowEndAt != null) }
-    var windowHours by remember(reminder?.id) {
+    var deadlineEnabled by remember(reminder?.id) { mutableStateOf(reminder?.deadlineAt != null) }
+    var deadlineHours by remember(reminder?.id) {
         mutableStateOf(
-            reminder?.let { current ->
-                current.windowEndAt
-                    ?.let { end -> ((end - current.dueAt) / 3_600_000L).toInt().coerceAtLeast(1) }
-                    ?: 2
-            } ?: 2
+            reminder?.deadlineOffsetMinutes
+                ?.let { (it / 60).coerceAtLeast(1) }
+                ?: reminder?.let { current ->
+                    current.deadlineAt
+                        ?.let { end -> ((end - current.dueAt) / 3_600_000L).toInt().coerceAtLeast(1) }
+                }
+                ?: 2
         )
     }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -196,14 +198,14 @@ internal fun ReminderEditorScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Switch(checked = windowEnabled, onCheckedChange = { windowEnabled = it })
+                Switch(checked = deadlineEnabled, onCheckedChange = { deadlineEnabled = it })
             }
-            if (windowEnabled) {
+            if (deadlineEnabled) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                     listOf(1, 2, 4).forEach { hours ->
                         FilterChip(
-                            selected = windowHours == hours,
-                            onClick = { windowHours = hours },
+                            selected = deadlineHours == hours,
+                            onClick = { deadlineHours = hours },
                             label = { Text(stringResource(R.string.hours_short, hours)) },
                         )
                     }
@@ -252,10 +254,16 @@ internal fun ReminderEditorScreen(
                             title = title.trim(),
                             notes = notes.trim(),
                             dueAt = dueAt,
-                            windowEndAt = if (windowEnabled) dueAt + windowHours * 3_600_000L else null,
+                            deadlineAt = if (deadlineEnabled) dueAt + deadlineHours * 3_600_000L else null,
+                            deadlineOffsetMinutes = if (deadlineEnabled) deadlineHours * 60 else null,
                             intensity = intensity.name,
                             repeatMode = repeatMode.name,
                             repeatIntervalDays = repeatIntervalDays,
+                            monthlyAnchorDay = if (repeatMode == RepeatMode.MONTHLY) {
+                                Instant.ofEpochMilli(dueAt).atZone(zone).dayOfMonth
+                            } else {
+                                null
+                            },
                         )
                     )
                 },
