@@ -24,7 +24,16 @@ class ReminderReceiver : BroadcastReceiver() {
                     ACTION_FIRE -> {
                         val reminder = app.repository.get(reminderId)
                         if (reminder?.statusValue() == ReminderStatus.ACTIVE) {
-                            ReminderNotifications.show(context, reminder)
+                            val posted = ReminderNotifications.show(context, reminder)
+                            if (
+                                posted &&
+                                reminder.intensityValue() == com.cybertran.numesquece.data.ReminderIntensity.DONT_LET_ME_FORGET
+                            ) {
+                                app.scheduler.scheduleAt(
+                                    reminderId,
+                                    System.currentTimeMillis() + 5 * 60_000L,
+                                )
+                            }
                         }
                     }
 
