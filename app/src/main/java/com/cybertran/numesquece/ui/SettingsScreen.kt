@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,12 +36,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import com.cybertran.numesquece.BuildConfig
-import com.cybertran.numesquece.R
 import com.cybertran.numesquece.NotificationSoundMode
+import com.cybertran.numesquece.R
 import com.cybertran.numesquece.data.ReminderIntensity
 import com.cybertran.numesquece.reminders.ReminderNotifications
-import com.cybertran.numesquece.sync.GoogleSyncState
-import com.cybertran.numesquece.sync.SyncPhase
 
 @Composable
 internal fun SettingsScreen(
@@ -46,16 +49,15 @@ internal fun SettingsScreen(
     onTestReminder: () -> Unit,
     notificationSoundMode: NotificationSoundMode,
     onNotificationSoundModeChanged: (NotificationSoundMode) -> Unit,
-    syncState: GoogleSyncState,
-    onConnectGoogle: () -> Unit,
-    onSyncGoogle: () -> Unit,
-    onDisconnectGoogle: () -> Unit,
+    showContentOnLockScreen: Boolean,
+    onShowContentOnLockScreenChanged: (Boolean) -> Unit,
+    onDeleteAllData: () -> Unit,
 ) {
     val context = LocalContext.current
     val alarmManager = context.getSystemService(AlarmManager::class.java)
     val notificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
     val exactAlarmEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
-    val syncBusy = syncState.phase == SyncPhase.CONNECTING || syncState.phase == SyncPhase.SYNCING
+    var confirmDeleteAll by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -82,16 +84,22 @@ internal fun SettingsScreen(
                     }
                 ) { Text(stringResource(R.string.allow_exact_alarms)) }
             }
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.show_lockscreen_content),
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = showContentOnLockScreen,
+                    onCheckedChange = onShowContentOnLockScreenChanged,
+                )
+            }
         }
 
         Spacer(Modifier.height(12.dp))
         SettingsCard(stringResource(R.string.reminder_sound)) {
-            Text(
-                stringResource(R.string.reminder_sound_description),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(10.dp))
-
             NotificationSoundMode.entries.forEach { mode ->
                 FilterChip(
                     selected = notificationSoundMode == mode,
@@ -101,14 +109,8 @@ internal fun SettingsScreen(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
             when (notificationSoundMode) {
                 NotificationSoundMode.NUM_ESQUECE -> {
-                    Text(
-                        stringResource(R.string.listen_custom_sounds),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                     TextButton(
                         onClick = {
                             ReminderNotifications.preview(
@@ -116,8 +118,11 @@ internal fun SettingsScreen(
                                 ReminderIntensity.NORMAL,
                                 NotificationSoundMode.NUM_ESQUECE,
                             )
-                        }
-                    ) { Text(stringResource(R.string.intensity_normal)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.intensity_normal))
+                    }
                     TextButton(
                         onClick = {
                             ReminderNotifications.preview(
@@ -125,8 +130,11 @@ internal fun SettingsScreen(
                                 ReminderIntensity.INSISTENT,
                                 NotificationSoundMode.NUM_ESQUECE,
                             )
-                        }
-                    ) { Text(stringResource(R.string.intensity_insistent)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.intensity_insistent))
+                    }
                     TextButton(
                         onClick = {
                             ReminderNotifications.preview(
@@ -134,8 +142,11 @@ internal fun SettingsScreen(
                                 ReminderIntensity.DONT_LET_ME_FORGET,
                                 NotificationSoundMode.NUM_ESQUECE,
                             )
-                        }
-                    ) { Text(stringResource(R.string.intensity_dont_forget)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.intensity_dont_forget))
+                    }
                 }
 
                 NotificationSoundMode.SYSTEM -> {
@@ -146,126 +157,42 @@ internal fun SettingsScreen(
                                 ReminderIntensity.NORMAL,
                                 NotificationSoundMode.SYSTEM,
                             )
-                        }
-                    ) { Text(stringResource(R.string.listen_default_sound)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.listen_default_sound))
+                    }
                 }
 
-                NotificationSoundMode.SILENT -> {
-                    Text(
-                        stringResource(R.string.silent_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            Text(
-                stringResource(R.string.android_channel_notice),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 6.dp),
-            )
-        }
-
-        if (BuildConfig.GOOGLE_SYNC_AVAILABLE) {
-            Spacer(Modifier.height(12.dp))
-            SettingsCard(stringResource(R.string.sync_title)) {
-            Text(
-                if (syncState.connected) stringResource(R.string.google_account_connected) else stringResource(R.string.only_this_device),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                stringResource(R.string.sync_description),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-
-            syncState.lastSyncAt?.let {
-                Text(
-                    stringResource(R.string.last_sync_at, formatDateTime(context, it)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-
-            syncState.message?.let { message ->
-                Text(
-                    message,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (syncState.phase == SyncPhase.ERROR) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.primary
-                    },
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-
-            Spacer(Modifier.height(12.dp))
-            if (!syncState.connected) {
-                OutlinedButton(
-                    onClick = onConnectGoogle,
-                    enabled = !syncBusy,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(if (syncBusy) stringResource(R.string.connecting) else stringResource(R.string.connect_google_account))
-                }
-            } else {
-                OutlinedButton(
-                    onClick = onSyncGoogle,
-                    enabled = !syncBusy,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(if (syncBusy) stringResource(R.string.syncing) else stringResource(R.string.sync_now))
-                }
-                TextButton(
-                    onClick = onConnectGoogle,
-                    enabled = !syncBusy,
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(stringResource(R.string.choose_another_google_account)) }
-                TextButton(
-                    onClick = onDisconnectGoogle,
-                    enabled = !syncBusy,
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(stringResource(R.string.disconnect_google_account)) }
-            }
+                NotificationSoundMode.SILENT -> Unit
             }
         }
 
         Spacer(Modifier.height(12.dp))
         SettingsCard(stringResource(R.string.appearance)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.system_colors), fontWeight = FontWeight.SemiBold)
-                    Text(
-                        stringResource(R.string.material_you_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    stringResource(R.string.system_colors),
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                )
                 Switch(checked = dynamicColor, onCheckedChange = onDynamicColorChanged)
             }
         }
 
         Spacer(Modifier.height(12.dp))
-        SettingsCard(stringResource(R.string.privacy)) {
-            Text(
-                stringResource(
-                    if (BuildConfig.GOOGLE_SYNC_AVAILABLE) R.string.privacy_google else R.string.privacy_local
-                )
-            )
+        SettingsCard(stringResource(R.string.data)) {
+            OutlinedButton(
+                onClick = { confirmDeleteAll = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.delete_all_data))
+            }
         }
 
         if (BuildConfig.DONATION_URL.isNotBlank()) {
             Spacer(Modifier.height(12.dp))
             SettingsCard(stringResource(R.string.support_num_esquece)) {
-                Text(
-                    stringResource(R.string.support_description),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(10.dp))
                 OutlinedButton(
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.DONATION_URL))
@@ -282,10 +209,6 @@ internal fun SettingsScreen(
         SettingsCard(stringResource(R.string.about)) {
             Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.version_format, BuildConfig.VERSION_NAME), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(
-                stringResource(R.string.open_source_description),
-                modifier = Modifier.padding(top = 8.dp),
-            )
             TextButton(
                 onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.SOURCE_CODE_URL))
@@ -297,6 +220,27 @@ internal fun SettingsScreen(
             }
         }
         Spacer(Modifier.height(30.dp))
+    }
+
+    if (confirmDeleteAll) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteAll = false },
+            title = { Text(stringResource(R.string.delete_all_data_title)) },
+            text = { Text(stringResource(R.string.delete_all_data_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmDeleteAll = false
+                        onDeleteAllData()
+                    }
+                ) { Text(stringResource(R.string.delete_all_data)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteAll = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
     }
 }
 
