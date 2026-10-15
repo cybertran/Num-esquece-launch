@@ -1,0 +1,25 @@
+security:
+  baseline: enabled
+  baseline_version: "1.1"
+  baseline_source: "cybertran/Dev-references"
+  baseline_source_commit: "21db0e6c83d288a47a21b9f9770f48965e44f693"
+  asvs_version: "5.0.0"
+  asvs_target: "L2-applicable"
+  profile: "mobile_local"
+  fail_closed: true
+  scope:
+    repository: "cybertran/Num-esquece-launch"
+    reason: "Aplicativo Android offline com dados privados locais, Room, notificações e distribuição pública."
+    authentication_or_remote_api: false
+    private_or_sensitive_local_data: true
+    public_web_surface: false
+    ci_secrets: false
+  required_gates: [security_policy, tests_when_available, build_when_available, lint_when_available, secret_scan, dependency_scan_when_available, authorization_tests_when_applicable]
+  block_release_on: [critical, high]
+  ai_generated_code:
+    trust: false
+    validation_required: true
+    direct_main_branch_changes: false
+    adversarial_review_required: true
+  accepted_risk:
+    requires_human_approval: true
