@@ -1,8 +1,8 @@
 # Origem da baseline de segurança
 
 - Fonte canônica: `cybertran/Dev-references`
-- Baseline: `1.1`
-- Commit da fonte no bootstrap: `21db0e6c83d288a47a21b9f9770f48965e44f693`
+- Baseline: `1.2`
+- Commit da fonte no bootstrap: `f718838c22635977a19abb7623d83c007ddfef77`
 - Perfil aplicado: `mobile_local`
 - OWASP ASVS: `5.0.0`
 
