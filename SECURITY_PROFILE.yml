@@ -1,8 +1,8 @@
 security:
   baseline: enabled
-  baseline_version: "1.1"
+  baseline_version: "1.2"
   baseline_source: "cybertran/Dev-references"
-  baseline_source_commit: "21db0e6c83d288a47a21b9f9770f48965e44f693"
+  baseline_source_commit: "f718838c22635977a19abb7623d83c007ddfef77"
   asvs_version: "5.0.0"
   asvs_target: "L2-applicable"
   profile: "mobile_local"
