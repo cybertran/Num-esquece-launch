@@ -175,13 +175,17 @@
 
 - [ ] Nenhum segredo hardcoded.
 - [ ] `.env` real não é versionado.
-- [ ] Secret scanning foi executado.
-- [ ] Histórico do Git foi verificado quando necessário.
+- [ ] Scanner especializado e mantido de segredos foi executado.
+- [ ] O scanner teve acesso ao histórico Git completo, não apenas ao working tree ou `git ls-files`.
+- [ ] O conjunto de regras cobre credenciais modernas e detecção genérica/entropia.
+- [ ] GitHub fine-grained PAT, AWS temporário/STS, provedores de IA, Stripe, Slack, JWT/service-role, OAuth client secret e connection strings foram contemplados pelas regras ou testes de cobertura.
+- [ ] Supressões/allowlists são específicas, justificadas e revisadas.
 - [ ] Segredos têm privilégios mínimos.
 - [ ] Segredos de produção são separados de desenvolvimento.
 - [ ] Rotação é possível.
 - [ ] Revogação é possível.
-- [ ] Segredo comprometido foi revogado, não apenas removido do código.
+- [ ] Segredo comprometido foi revogado/rotacionado, não apenas removido do código ou do HEAD.
+- [ ] Reescrita de histórico, quando realizada, é tratada como redução de exposição e não como substituta de revogação.
 - [ ] Credenciais administrativas nunca são distribuídas ao cliente.
 
 ## 14. Criptografia
@@ -316,7 +320,13 @@
 - [ ] Build passou.
 - [ ] Lint passou.
 - [ ] Type checking passou quando aplicável.
-- [ ] Secret scan passou.
+- [ ] Secret scan especializado e mantido passou.
+- [ ] O secret scan teve acesso ao histórico Git completo (`fetch-depth: 0` ou equivalente).\n- [ ] A invocação real do scanner foi conferida e não limita o scan ao PR/diff/último commit (`--log-opts` ou equivalente).
+- [ ] A varredura histórica integral foi executada no bootstrap ou após mudança relevante de regras.
+- [ ] O scanner cobre credenciais modernas e padrões genéricos, não apenas regexes caseiros.
+- [ ] Há testes sintéticos de regressão para famílias relevantes de segredos.
+- [ ] Há teste de regressão em que o segredo existe somente em commit anterior.
+- [ ] Supressões/allowlists do secret scan foram revisadas e justificadas.
 - [ ] Dependency scan passou.
 - [ ] SAST passou quando disponível.
 - [ ] DAST foi avaliado quando aplicável.
