@@ -1,6 +1,6 @@
 # SECURITY_CHECKLIST
 
-**Baseline:** Security Baseline v1.1  
+**Baseline:** Security Baseline v1.2  
 **ASVS:** 5.0.0  
 **Alvo padrão:** Level 2  
 **Regra:** código produzido ou modificado por IA permanece não confiável até a conclusão das verificações aplicáveis.
