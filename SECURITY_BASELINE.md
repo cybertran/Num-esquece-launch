@@ -1,10 +1,10 @@
 # Baseline Canônica de Segurança para Sistemas com Identidade e Dados
 
-**Versão:** 1.1  
+**Versão:** 1.2  
 **Status:** canônica vigente  
 **Data de consolidação:** outubro de 2026
 
-> Esta versão consolida integralmente a v1.0 e acrescenta automação, alvo ASVS explícito, matriz verificável, bootstrap, gates de CI, regras de descoberta automática e evidência de segurança. É a versão canônica vigente para novos projetos.
+> Esta versão consolida a v1.1 e endurece a detecção de segredos: scanner mantido, cobertura do histórico Git completo, regras para credenciais modernas e testes de regressão de cobertura. É a versão canônica vigente para novos projetos.
 
 ## 1. Finalidade
 
@@ -200,13 +200,23 @@ Senhas não entram nessa regra de criptografia de dados: senhas devem ser armaze
 
 ## 14. Segredos e credenciais
 
-Segredos nunca devem ser incluídos no código-fonte.
+Segredos nunca devem ser incluídos no código-fonte, artefatos, logs, documentação, fixtures reais ou histórico Git.
 
-Isso inclui senhas de banco, service keys, tokens privados, chaves de API, chaves de assinatura, certificados privados e outras credenciais.
+Isso inclui, sem se limitar a: senhas de banco; service keys e service-role tokens; tokens privados; chaves de API; GitHub PATs clássicos e fine-grained (`gh*` e `github_pat_*`); credenciais AWS permanentes e temporárias, inclusive STS/`ASIA`; chaves de provedores de IA como OpenAI e Anthropic; credenciais Stripe; tokens Slack; JWTs sensíveis; OAuth client secrets; connection strings contendo usuário/senha; chaves de assinatura; certificados/chaves privadas; e tokens genéricos de alta entropia associados a nomes sensíveis.
+
+A lista acima é ilustrativa, não exaustiva. A defesa não pode depender apenas de uma lista manual fechada de prefixos.
 
 Arquivos `.env` com segredos reais não devem ser versionados.
 
-O repositório deve possuir mecanismo de detecção de segredos sempre que possível.
+Todo repositório sujeito a esta baseline deve possuir detecção automatizada de segredos com um scanner mantido e especializado, como Gitleaks ou equivalente. Regexes caseiros podem existir apenas como verificação complementar e não podem ser apresentados como secret scan suficiente.
+
+O scanner deve executar com histórico Git completo. Em GitHub Actions, o checkout usado pelo secret scan deve utilizar `fetch-depth: 0` ou mecanismo equivalente que torne todos os commits relevantes acessíveis. Isso é necessário, mas não suficiente: a invocação do scanner também não pode restringir silenciosamente a análise ao range do pull request, ao último commit, ao diff ou ao working tree. O comando efetivo deve ser verificado. No fluxo canônico, Gitleaks é executado por `gitleaks git` sem `--log-opts` limitando commits. Uma varredura apenas dos arquivos atualmente rastreados, do working tree ou do diff não satisfaz a verificação histórica.
+
+No bootstrap inicial e após mudança relevante das regras do scanner, deve ser feita varredura integral do histórico. Pull requests devem continuar bloqueados para novos vazamentos; projetos podem otimizar scans incrementais somente se mantiverem uma verificação histórica periódica e houver evidência de que commits ancestrais permanecem cobertos.
+
+A configuração do scanner deve usar o conjunto mantido de regras do fornecedor e pode acrescentar regras específicas do projeto. Supressões/allowlists devem ser mínimas, específicas e justificadas; não devem ignorar diretórios inteiros apenas por conveniência.
+
+O projeto deve manter testes de regressão de cobertura do secret scan. Esses testes devem incluir, quando aplicável, amostras sintéticas/inválidas representativas de famílias como GitHub fine-grained PAT, AWS STS, provedores de IA, Stripe, Slack, JWT/service-role, OAuth client secret e connection string com credenciais, além de um cenário em que o segredo exista apenas em commit anterior.
 
 Segredos de produção devem ser mantidos em sistema apropriado de secrets management ou mecanismo seguro equivalente.
 
@@ -214,7 +224,7 @@ Cada componente deve receber apenas os segredos necessários.
 
 Segredos devem permitir rotação e revogação.
 
-Um segredo vazado deve ser considerado comprometido mesmo que posteriormente seja removido do Git. O histórico do repositório também deve ser avaliado.
+Um segredo vazado deve ser considerado comprometido mesmo que posteriormente seja removido do Git. A primeira resposta é revogar/rotacionar a credencial. Reescrever o histórico pode reduzir exposição, mas não substitui rotação/revogação.
 
 ## 15. APIs
 
@@ -424,7 +434,9 @@ Sempre que disponíveis no projeto, devem ser executados:
 - type checking;
 - análise estática de segurança;
 - análise de dependências vulneráveis;
-- detecção de segredos;
+- detecção de segredos por scanner especializado e mantido;
+- varredura do histórico Git completo no bootstrap e conforme política de recorrência;
+- testes de regressão da cobertura do secret scan;
 - verificações específicas da plataforma.
 
 Falha em uma verificação de segurança não deve ser contornada apenas para produzir um build verde.
