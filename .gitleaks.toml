@@ -1,0 +1,24 @@
+title = "Canonical security secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "database-credential-uri"
+description = "Connection string contendo credenciais embutidas."
+regex = '''(?i)\b(?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|redis|rediss|amqp|amqps)://[^:/\s@]{1,128}:[^@\s]{6,256}@[^\s'"`]+'''
+keywords = ["postgres://", "postgresql://", "mysql://", "mariadb://", "mongodb://", "mongodb+srv://", "redis://", "rediss://", "amqp://", "amqps://"]
+
+[[rules]]
+id = "oauth-client-secret-assignment"
+description = "OAuth/client secret atribuído diretamente em arquivo."
+regex = '''(?i)(?:client[_-]?secret|oauth[_-]?client[_-]?secret)\s*[:=]\s*["']?([A-Za-z0-9_./+=~-]{24,})["']?'''
+secretGroup = 1
+keywords = ["client_secret", "client-secret", "oauth_client_secret", "oauth-client-secret"]
+
+[[rules]]
+id = "service-role-secret-assignment"
+description = "Service-role/service key atribuída diretamente em arquivo."
+regex = '''(?i)(?:service[_-]?role(?:[_-]?key)?|service[_-]?key)\s*[:=]\s*["']?([A-Za-z0-9_./+=~-]{24,})["']?'''
+secretGroup = 1
+keywords = ["service_role", "service-role", "service_key", "service-key"]
