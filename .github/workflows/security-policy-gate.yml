@@ -36,3 +36,24 @@ jobs:
           /tmp/gitleaks version
       - name: Scan complete Git history
         run: /tmp/gitleaks git --config .gitleaks.toml --no-banner --redact=100 --exit-code=1 .
+
+
+  secret-scanner-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - name: Install pinned Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location "$url" --output /tmp/gitleaks.tar.gz
+          echo "a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb  /tmp/gitleaks.tar.gz" | sha256sum --check -
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+      - name: Run synthetic secret coverage regression
+        env:
+          GITLEAKS_BIN: /tmp/gitleaks
+        run: python security/test_gitleaks_regression.py
