@@ -30,8 +30,8 @@ android {
         applicationId = "com.cybertran.numesquece"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10003
-        versionName = "1.0.0"
+        versionCode = 10100
+        versionName = "1.1.0"
 
         buildConfigField("String", "DONATION_URL", "\"\"")
         buildConfigField("String", "SOURCE_CODE_URL", "\"https://github.com/cybertran/Num-esquece-launch\"")
