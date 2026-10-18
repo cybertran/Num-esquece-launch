@@ -1,5 +1,6 @@
 package com.cybertran.numesquece.data
 
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
@@ -60,6 +61,63 @@ class ReminderLogicTest {
             at(zone, 2026, 3, 8, 9, 0),
             ReminderLogic.nextOccurrence(reminder, beforeDst + 60_000L, zone),
         )
+    }
+
+    @Test
+    fun dailyRecurrenceIncludesFinalDayAndStopsAfterIt() {
+        val october19 = at(utc, 2026, 10, 19, 9, 0)
+        val repeatUntil = LocalDate.of(2026, 10, 21).toEpochDay()
+        val reminder = ReminderEntity(
+            title = "Daily",
+            dueAt = october19,
+            repeatMode = RepeatMode.DAILY.name,
+            repeatUntilEpochDay = repeatUntil,
+        )
+
+        val october20 = ReminderLogic.nextOccurrence(reminder, october19 + 1, utc)
+        assertEquals(at(utc, 2026, 10, 20, 9, 0), october20)
+
+        val october21 = ReminderLogic.nextOccurrence(
+            reminder.copy(dueAt = october20!!),
+            october20 + 1,
+            utc,
+        )
+        assertEquals(at(utc, 2026, 10, 21, 9, 0), october21)
+
+        assertNull(
+            ReminderLogic.nextOccurrence(
+                reminder.copy(dueAt = october21!!),
+                october21 + 1,
+                utc,
+            )
+        )
+    }
+
+    @Test
+    fun recurrenceDoesNotCreateOccurrenceAfterEndDate() {
+        val october19 = at(utc, 2026, 10, 19, 9, 0)
+        val reminder = ReminderEntity(
+            title = "Weekly",
+            dueAt = october19,
+            repeatMode = RepeatMode.WEEKLY.name,
+            repeatUntilEpochDay = LocalDate.of(2026, 10, 25).toEpochDay(),
+        )
+
+        assertNull(ReminderLogic.nextOccurrence(reminder, october19 + 1, utc))
+    }
+
+    @Test
+    fun afterCompletionRespectsRepeatEndDate() {
+        val completed = at(utc, 2026, 10, 20, 18, 45)
+        val reminder = ReminderEntity(
+            title = "After completion",
+            dueAt = completed - 60_000L,
+            repeatMode = RepeatMode.AFTER_COMPLETION.name,
+            repeatIntervalDays = 7,
+            repeatUntilEpochDay = LocalDate.of(2026, 10, 25).toEpochDay(),
+        )
+
+        assertNull(ReminderLogic.nextOccurrence(reminder, completed, utc))
     }
 
     @Test
