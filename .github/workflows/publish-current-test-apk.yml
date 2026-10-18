@@ -1,0 +1,106 @@
+name: Publish current test APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-current-test-apk.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish-test-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout validated public commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 96052cd172aa9dea1cd39d7b2a0c4d57c37d6690
+          persist-credentials: false
+
+      - name: Java 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Android SDK 36
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+
+      - name: Secret scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -nI -E '(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)' -- .; then
+            echo "Possible credential or private key found in tracked text."
+            exit 1
+          fi
+
+      - name: Unit tests
+        run: ./gradlew --no-daemon --stacktrace :app:testFdroidDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew --no-daemon --stacktrace :app:lintFdroidRelease
+
+      - name: Build installable test APK
+        run: ./gradlew --no-daemon --stacktrace :app:assembleFdroidDebug
+
+      - name: APK privacy gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk"
+          test -f "$APK"
+          AAPT=$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)
+          "$AAPT" dump permissions "$APK" | tee apk-permissions.txt
+          if grep -E 'android\.permission\.(INTERNET|ACCESS_NETWORK_STATE|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|CAMERA|RECORD_AUDIO|READ_CALENDAR|WRITE_CALENDAR|READ_EXTERNAL_STORAGE|WRITE_EXTERNAL_STORAGE|MANAGE_EXTERNAL_STORAGE|AD_ID)' apk-permissions.txt; then
+            echo "Forbidden permission found in final APK."
+            exit 1
+          fi
+
+      - name: Publish prerelease APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="test-repeat-until-96052cd"
+          APK="app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk"
+          ASSET="num-esquece-v1.0.0-test-repeat-until-96052cd.apk"
+          cp "$APK" "$ASSET"
+
+          NOTES=$(cat <<'EOF'
+APK de teste instalável da funcionalidade de recorrência com data final.
+
+Inclui:
+- Sem data final
+- Fim da semana
+- Fim do mês
+- Escolher data
+- limite inclusivo de recorrência
+
+Origem: commit público 96052cd172aa9dea1cd39d7b2a0c4d57c37d6690.
+
+Este APK é de teste e usa assinatura de debug. Não substitui uma distribuição oficial assinada/F-Droid.
+EOF
+)
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$ASSET" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "96052cd172aa9dea1cd39d7b2a0c4d57c37d6690" \
+              --prerelease \
+              --title "Num esquece — APK de teste (recorrência com data final)" \
+              --notes "$NOTES"
+          fi
