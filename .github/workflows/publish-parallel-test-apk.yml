@@ -1,0 +1,129 @@
+name: Publish parallel test APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-parallel-test-apk.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout stable v1.1.0 source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v1.1.0
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Java 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Android SDK 36
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+
+      - name: Prepare parallel test package
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          gradle_path = Path("app/build.gradle.kts")
+          gradle = gradle_path.read_text(encoding="utf-8")
+          old = 'applicationId = "com.cybertran.numesquece"'
+          new = 'applicationId = "com.cybertran.numesquece.test"'
+          if old not in gradle:
+              raise SystemExit("Expected applicationId not found.")
+          gradle = gradle.replace(old, new, 1)
+          gradle_path.write_text(gradle, encoding="utf-8")
+
+          for path in Path("app/src/main/res").glob("values*/strings.xml"):
+              text = path.read_text(encoding="utf-8")
+              updated, count = re.subn(
+                  r'(<string\s+name="app_name">)(.*?)(</string>)',
+                  r'\1Num esquece Teste\3',
+                  text,
+                  count=1,
+              )
+              if count:
+                  path.write_text(updated, encoding="utf-8")
+          PY
+
+          grep -n 'applicationId = "com.cybertran.numesquece.test"' app/build.gradle.kts
+          grep -R -n '<string name="app_name">Num esquece Teste</string>' app/src/main/res/values*/strings.xml
+
+      - name: Secret scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -nI -E '(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)' -- .; then
+            echo "Possible credential or private key found in tracked text."
+            exit 1
+          fi
+
+      - name: Unit tests
+        run: ./gradlew --no-daemon --stacktrace :app:testFdroidDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew --no-daemon --stacktrace :app:lintFdroidDebug
+
+      - name: Build installable parallel APK
+        run: ./gradlew --no-daemon --stacktrace :app:assembleFdroidDebug
+
+      - name: APK privacy and package gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk"
+          test -f "$APK"
+          AAPT=$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)
+          "$AAPT" dump badging "$APK" | tee apk-badging.txt
+          "$AAPT" dump permissions "$APK" | tee apk-permissions.txt
+
+          grep -F "package: name='com.cybertran.numesquece.test'" apk-badging.txt
+
+          if grep -E 'android\.permission\.(INTERNET|ACCESS_NETWORK_STATE|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|CAMERA|RECORD_AUDIO|READ_CALENDAR|WRITE_CALENDAR|READ_EXTERNAL_STORAGE|WRITE_EXTERNAL_STORAGE|MANAGE_EXTERNAL_STORAGE|AD_ID)' apk-permissions.txt; then
+            echo "Forbidden permission found in test APK."
+            exit 1
+          fi
+
+      - name: Publish parallel test APK prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="test-v1.1.0-parallel"
+          APK="app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk"
+          ASSET="num-esquece-v1.1.0-paralelo-teste.apk"
+          cp "$APK" "$ASSET"
+
+          NOTES="APK de teste paralelo baseado exatamente na tag v1.1.0. Usa o pacote com.cybertran.numesquece.test e aparece como Num esquece Teste, portanto pode ser instalado ao lado da versão do F-Droid sem substituir nem apagar os dados dela. Este APK usa assinatura de debug e é destinado a teste/uso local, não ao canal oficial do F-Droid."
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$ASSET" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "v1.1.0" \
+              --prerelease \
+              --title "Num esquece Teste — v1.1.0 paralelo" \
+              --notes "$NOTES"
+          fi
