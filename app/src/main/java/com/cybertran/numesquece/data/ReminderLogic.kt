@@ -28,11 +28,12 @@ internal object ReminderLogic {
 
         if (repeat == RepeatMode.AFTER_COMPLETION) {
             val days = reminder.repeatIntervalDays.coerceAtLeast(1).toLong()
-            return Instant.ofEpochMilli(completedAt)
+            val next = Instant.ofEpochMilli(completedAt)
                 .atZone(zone)
                 .plusDays(days)
                 .toInstant()
                 .toEpochMilli()
+            return withinRepeatLimit(reminder, next, zone)
         }
 
         val start = Instant.ofEpochMilli(reminder.dueAt).atZone(zone)
@@ -50,7 +51,7 @@ internal object ReminderLogic {
                 next = LocalDateTime.of(cursorDate, time).atZone(zone)
             } while (next.toInstant().toEpochMilli() <= completedAt)
 
-            return next.toInstant().toEpochMilli()
+            return withinRepeatLimit(reminder, next.toInstant().toEpochMilli(), zone)
         }
 
         do {
@@ -61,6 +62,19 @@ internal object ReminderLogic {
             }
         } while (next.toInstant().toEpochMilli() <= completedAt)
 
-        return next.toInstant().toEpochMilli()
+        return withinRepeatLimit(reminder, next.toInstant().toEpochMilli(), zone)
+    }
+
+    private fun withinRepeatLimit(
+        reminder: ReminderEntity,
+        occurrenceAt: Long,
+        zone: ZoneId,
+    ): Long? {
+        val repeatUntil = reminder.repeatUntilEpochDay ?: return occurrenceAt
+        val occurrenceDay = Instant.ofEpochMilli(occurrenceAt)
+            .atZone(zone)
+            .toLocalDate()
+            .toEpochDay()
+        return occurrenceAt.takeIf { occurrenceDay <= repeatUntil }
     }
 }
