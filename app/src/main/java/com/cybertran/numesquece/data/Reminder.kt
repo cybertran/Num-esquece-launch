@@ -16,6 +16,7 @@ data class ReminderEntity(
     val intensity: String = ReminderIntensity.NORMAL.name,
     val repeatMode: String = RepeatMode.NONE.name,
     val repeatIntervalDays: Int = 30,
+    val repeatUntilEpochDay: Long? = null,
     val status: String = ReminderStatus.ACTIVE.name,
     val snoozeCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
