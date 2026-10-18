@@ -39,7 +39,7 @@ interface ReminderDao {
     suspend fun clearAll()
 }
 
-@Database(entities = [ReminderEntity::class], version = 3, exportSchema = false)
+@Database(entities = [ReminderEntity::class], version = 4, exportSchema = false)
 abstract class ReminderDatabase : RoomDatabase() {
     abstract fun reminderDao(): ReminderDao
 
@@ -96,12 +96,18 @@ abstract class ReminderDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) = migrateToOfflineSchema(db)
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE reminders ADD COLUMN repeatUntilEpochDay INTEGER")
+            }
+        }
+
         fun create(context: Context): ReminderDatabase = Room.databaseBuilder(
             context.applicationContext,
             ReminderDatabase::class.java,
             "num-esquece.db",
         )
-            .addMigrations(MIGRATION_1_3, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_3, MIGRATION_2_3, MIGRATION_3_4)
             .build()
     }
 }
