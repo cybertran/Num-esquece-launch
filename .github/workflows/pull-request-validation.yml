@@ -77,39 +77,115 @@ jobs:
 
           metadata = Path(".fdroid.yml").read_text(encoding="utf-8")
 
-          def field(name: str) -> str:
-              match = re.search(rf"^\s*(?:-\s+)?{re.escape(name)}:\s*['\"]?([^'\"\n]+)['\"]?\s*$", metadata, re.MULTILINE)
+          def top_field(name: str) -> str:
+              match = re.search(rf"^{re.escape(name)}:\s*['\"]?([^'\"\n]+)['\"]?\s*$", metadata, re.MULTILINE)
               if not match:
                   raise SystemExit(f"Missing F-Droid metadata field: {name}")
               return match.group(1).strip()
 
-          version_name = field("versionName")
-          version_code = int(field("versionCode"))
-          commit = field("commit")
-          current_version = field("CurrentVersion")
-          current_version_code = int(field("CurrentVersionCode"))
+          builds = []
+          current = None
+          in_builds = False
 
-          if version_name != current_version or version_code != current_version_code:
-              raise SystemExit("F-Droid current version fields do not match the build entry.")
+          for line in metadata.splitlines():
+              if line == "Builds:":
+                  in_builds = True
+                  continue
+              if in_builds and line and not line.startswith(" "):
+                  break
+              if not in_builds:
+                  continue
 
-          subprocess.run(["git", "rev-parse", "--verify", f"{commit}^{{commit}}"], check=True, stdout=subprocess.DEVNULL)
-          gradle = subprocess.check_output(["git", "show", f"{commit}:app/build.gradle.kts"], text=True)
+              match = re.match(r"^  - versionName:\s*(.+?)\s*$", line)
+              if match:
+                  current = {"versionName": match.group(1).strip(), "fdroid": False}
+                  builds.append(current)
+                  continue
+
+              if current is None:
+                  continue
+
+              match = re.match(r"^    versionCode:\s*(\d+)\s*$", line)
+              if match:
+                  current["versionCode"] = int(match.group(1))
+                  continue
+
+              match = re.match(r"^    commit:\s*(\S+)\s*$", line)
+              if match:
+                  current["commit"] = match.group(1)
+                  continue
+
+              match = re.match(r"^    subdir:\s*(\S+)\s*$", line)
+              if match:
+                  current["subdir"] = match.group(1)
+                  continue
+
+              if re.match(r"^      - fdroid\s*$", line):
+                  current["fdroid"] = True
+
+          if not builds:
+              raise SystemExit("No F-Droid build entries found.")
+
+          required = {"versionName", "versionCode", "commit", "subdir"}
+          for build in builds:
+              missing = required.difference(build)
+              if missing:
+                  raise SystemExit(f"Incomplete F-Droid build entry: missing {sorted(missing)}")
+              if build["subdir"] != "app" or not build["fdroid"]:
+                  raise SystemExit("Every F-Droid build entry must use subdir app and the fdroid flavor.")
+
+          codes = [build["versionCode"] for build in builds]
+          if len(codes) != len(set(codes)):
+              raise SystemExit("F-Droid versionCode values must be unique.")
+
+          current_version = top_field("CurrentVersion")
+          current_version_code = int(top_field("CurrentVersionCode"))
+
+          candidates = [
+              build for build in builds
+              if build["versionName"] == current_version
+              and build["versionCode"] == current_version_code
+          ]
+          if len(candidates) != 1:
+              raise SystemExit("CurrentVersion/CurrentVersionCode must match exactly one build entry.")
+
+          selected = candidates[0]
+          if current_version_code != max(codes):
+              raise SystemExit("CurrentVersionCode must be the highest build versionCode.")
+
+          expected_tag = f"v{current_version}"
+          if selected["commit"] != expected_tag:
+              raise SystemExit(f"Current build must use conventional tag {expected_tag}.")
+
+          tag_check = subprocess.run(
+              ["git", "rev-parse", "--verify", f"refs/tags/{selected['commit']}^{{commit}}"],
+              stdout=subprocess.DEVNULL,
+              stderr=subprocess.DEVNULL,
+          )
+
+          if tag_check.returncode == 0:
+              gradle = subprocess.check_output(
+                  ["git", "show", f"{selected['commit']}:app/build.gradle.kts"],
+                  text=True,
+              )
+              source_label = selected["commit"]
+          else:
+              gradle = Path("app/build.gradle.kts").read_text(encoding="utf-8")
+              source_label = "current release candidate"
+              print(f"{selected['commit']} does not exist yet; validating the current release candidate before tag creation.")
 
           gradle_name = re.search(r'versionName\s*=\s*"([^"]+)"', gradle)
           gradle_code = re.search(r'versionCode\s*=\s*(\d+)', gradle)
           if not gradle_name or not gradle_code:
-              raise SystemExit("Could not read version from tagged app/build.gradle.kts.")
+              raise SystemExit("Could not read version from app/build.gradle.kts.")
 
-          if gradle_name.group(1) != version_name or int(gradle_code.group(1)) != version_code:
-              raise SystemExit("F-Droid metadata version does not match the tagged source.")
-
-          if "gradle:\n      - fdroid" not in metadata:
-              raise SystemExit("F-Droid build recipe must use the fdroid flavor.")
+          if gradle_name.group(1) != current_version or int(gradle_code.group(1)) != current_version_code:
+              raise SystemExit("F-Droid metadata version does not match the release source.")
 
           if "Repo: https://github.com/cybertran/Num-esquece-launch.git" not in metadata:
               raise SystemExit("Unexpected F-Droid source repository.")
 
-          print(f"F-Droid metadata matches {commit}: {version_name} ({version_code})")
+          print(f"F-Droid metadata matches {source_label}: {current_version} ({current_version_code})")
           PY
 
       - name: F-Droid runtime dependency gate
@@ -160,42 +236,92 @@ jobs:
       contents: write
 
     steps:
-      - name: Create v1.0.0 source release if missing
+      - name: Checkout validated source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Publish source-only stable release
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ github.token }}
           script: |
+            const fs = require("fs");
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const tag = "v1.0.0";
 
-            try {
-              await github.rest.repos.getReleaseByTag({ owner, repo, tag });
-              core.info("v1.0.0 release already exists; nothing to do.");
+            const gradle = fs.readFileSync("app/build.gradle.kts", "utf8");
+            const versionNameMatch = gradle.match(/versionName\s*=\s*"([^"]+)"/);
+            const versionCodeMatch = gradle.match(/versionCode\s*=\s*(\d+)/);
+            if (!versionNameMatch || !versionCodeMatch) {
+              core.setFailed("Could not read versionName/versionCode from app/build.gradle.kts.");
               return;
+            }
+
+            const versionName = versionNameMatch[1];
+            const versionCode = Number(versionCodeMatch[1]);
+            const tag = `v${versionName}`;
+
+            const metadata = fs.readFileSync(".fdroid.yml", "utf8");
+            const currentVersion = metadata.match(/^CurrentVersion:\s*(\S+)\s*$/m)?.[1];
+            const currentVersionCode = Number(metadata.match(/^CurrentVersionCode:\s*(\d+)\s*$/m)?.[1]);
+
+            if (currentVersion !== versionName || currentVersionCode !== versionCode) {
+              core.setFailed("F-Droid CurrentVersion fields do not match app/build.gradle.kts.");
+              return;
+            }
+
+            let stableRelease;
+            try {
+              stableRelease = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+              core.info(`${tag} release already exists; keeping the existing stable release.`);
+            } catch (error) {
+              if (error.status !== 404) throw error;
+
+              const body = [
+                `Num esquece ${versionName}.`,
+                "",
+                "Novidade principal: recorrências agora podem ficar sem data final ou terminar em uma data escolhida, com atalhos para fim da semana e fim do mês. A data final é inclusiva.",
+                "",
+                "Distribuição: esta GitHub Release publica a tag e o código-fonte oficial. Não há APK oficial alternativo anexado; a distribuição F-Droid deve reconstruir o aplicativo a partir desta tag e aplicar a assinatura do próprio F-Droid.",
+                "",
+                "Privacidade: o aplicativo permanece offline, sem conta, anúncios, analytics, permissão de Internet ou backup automático em nuvem."
+              ].join("\n");
+
+              stableRelease = await github.rest.repos.createRelease({
+                owner,
+                repo,
+                tag_name: tag,
+                target_commitish: context.sha,
+                name: `Num esquece ${tag}`,
+                body,
+                draft: false,
+                prerelease: false
+              });
+
+              core.info(`Published ${stableRelease.data.html_url}`);
+            }
+
+            const testTag = "test-repeat-until-96052cd";
+            try {
+              const testRelease = await github.rest.repos.getReleaseByTag({ owner, repo, tag: testTag });
+              await github.rest.repos.deleteRelease({
+                owner,
+                repo,
+                release_id: testRelease.data.id
+              });
+              core.info("Removed temporary debug APK prerelease.");
             } catch (error) {
               if (error.status !== 404) throw error;
             }
 
-            const body = [
-              "Primeira versão estável do Num esquece.",
-              "",
-              "Aplicativo Android offline para lembretes persistentes: o lembrete só termina quando você resolve o assunto.",
-              "",
-              "Privacidade: sem conta, anúncios, analytics, permissão de Internet ou backup automático em nuvem.",
-              "",
-              "Esta GitHub Release publica o código-fonte oficial da v1.0.0. O APK de teste usado na validação interna não é publicado aqui como artefato oficial, pois utiliza assinatura de desenvolvimento. A distribuição assinada segue o processo documentado para F-Droid/assinatura externa."
-            ].join("\n");
-
-            const response = await github.rest.repos.createRelease({
-              owner,
-              repo,
-              tag_name: tag,
-              target_commitish: context.sha,
-              name: "Num esquece v1.0.0",
-              body,
-              draft: false,
-              prerelease: false
-            });
-
-            core.info(`Published ${response.data.html_url}`);
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `tags/${testTag}`
+              });
+              core.info("Removed temporary debug APK tag.");
+            } catch (error) {
+              if (error.status !== 404 && error.status !== 422) throw error;
+            }
