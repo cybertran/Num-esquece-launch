@@ -78,21 +78,7 @@ jobs:
           ASSET="num-esquece-v1.0.0-test-repeat-until-96052cd.apk"
           cp "$APK" "$ASSET"
 
-          NOTES=$(cat <<'EOF'
-APK de teste instalável da funcionalidade de recorrência com data final.
-
-Inclui:
-- Sem data final
-- Fim da semana
-- Fim do mês
-- Escolher data
-- limite inclusivo de recorrência
-
-Origem: commit público 96052cd172aa9dea1cd39d7b2a0c4d57c37d6690.
-
-Este APK é de teste e usa assinatura de debug. Não substitui uma distribuição oficial assinada/F-Droid.
-EOF
-)
+          NOTES="APK de teste instalável da recorrência com data final (Sem data final, Fim da semana, Fim do mês e Escolher data). Origem: commit público 96052cd172aa9dea1cd39d7b2a0c4d57c37d6690. Este APK usa assinatura de debug e não substitui uma distribuição oficial assinada/F-Droid."
 
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ASSET" --clobber --repo "$GITHUB_REPOSITORY"
