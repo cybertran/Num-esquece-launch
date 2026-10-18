@@ -3,7 +3,9 @@ name: Publish current test APK
 on:
   push:
     branches:
-      - release/test-apk-repeat-until
+      - main
+    paths:
+      - .github/workflows/publish-current-test-apk.yml
 
 permissions:
   contents: write
