@@ -54,7 +54,7 @@ Build de desenvolvimento:
 ./gradlew --no-daemon :app:assembleFdroidDebug
 ```
 
-A versão estável atual é **1.0.0** (`versionCode 10003`).
+A versão estável atual é **1.1.0** (`versionCode 10100`).
 
 ## Privacidade
 
@@ -68,4 +68,4 @@ Veja também [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md), [docs/FDROID.md](
 
 Issues, correções e melhorias são bem-vindas. Pull requests públicos devem ser validados exclusivamente em runners hospedados pelo GitHub e não recebem credenciais de assinatura ou outros secrets de publicação.
 
-A tag estável `v1.0.0` e os metadados upstream do F-Droid estão publicados. Novas versões estáveis devem manter a mesma regra: código aprovado no `main`, tag `v*` e metadata coerente.
+A versão estável atual é marcada pela tag `v1.1.0`, e a metadata upstream mantém o histórico de builds do F-Droid. Novas versões estáveis devem manter a mesma regra: código aprovado no `main`, tag `v*` e metadata coerente.
