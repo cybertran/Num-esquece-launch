@@ -28,6 +28,12 @@
     <string name="repeat_weekly">Chaque semaine</string>
     <string name="repeat_monthly">Chaque mois</string>
     <string name="repeat_after_completion">Après l’avoir terminé</string>
+    <string name="repeat_until">Répéter jusqu’au</string>
+    <string name="repeat_no_end">Sans date de fin</string>
+    <string name="repeat_end_of_week">Fin de semaine</string>
+    <string name="repeat_end_of_month">Fin du mois</string>
+    <string name="repeat_choose_date">Choisir une date</string>
+    <string name="repeat_until_value">Se répète jusqu’au %1$s inclus.</string>
 
     <string name="test_reminder_title">Test de Num esquece</string>
     <string name="test_reminder_notes">Si cette alerte est arrivée, les notifications fonctionnent.</string>

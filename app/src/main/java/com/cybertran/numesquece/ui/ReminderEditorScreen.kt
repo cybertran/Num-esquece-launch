@@ -2,6 +2,7 @@ package com.cybertran.numesquece.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,11 +54,15 @@ import com.cybertran.numesquece.data.ReminderIntensity
 import com.cybertran.numesquece.data.RepeatMode
 import com.cybertran.numesquece.data.intensityValue
 import com.cybertran.numesquece.data.repeatModeValue
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.temporal.TemporalAdjusters
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,6 +83,7 @@ internal fun ReminderEditorScreen(
     var intensity by remember(reminder?.id) { mutableStateOf(reminder?.intensityValue() ?: ReminderIntensity.NORMAL) }
     var repeatMode by remember(reminder?.id) { mutableStateOf(reminder?.repeatModeValue() ?: RepeatMode.NONE) }
     var repeatIntervalDays by remember(reminder?.id) { mutableStateOf(reminder?.repeatIntervalDays ?: 30) }
+    var repeatUntilEpochDay by remember(reminder?.id) { mutableStateOf(reminder?.repeatUntilEpochDay) }
     var deadlineEnabled by remember(reminder?.id) { mutableStateOf(reminder?.deadlineAt != null) }
     var deadlineHours by remember(reminder?.id) {
         mutableStateOf(
@@ -92,6 +98,31 @@ internal fun ReminderEditorScreen(
     }
     var confirmDelete by remember { mutableStateOf(false) }
 
+    fun updateDueAt(value: Long) {
+        dueAt = value
+        val firstEpochDay = Instant.ofEpochMilli(value).atZone(zone).toLocalDate().toEpochDay()
+        repeatUntilEpochDay = repeatUntilEpochDay?.coerceAtLeast(firstEpochDay)
+    }
+
+    fun pickRepeatEndDate() {
+        val firstDate = Instant.ofEpochMilli(dueAt).atZone(zone).toLocalDate()
+        val currentDate = repeatUntilEpochDay?.let(LocalDate::ofEpochDay) ?: firstDate
+        val dialog = DatePickerDialog(
+            context,
+            { _, year, month, day ->
+                repeatUntilEpochDay = LocalDate.of(year, month + 1, day).toEpochDay()
+            },
+            currentDate.year,
+            currentDate.monthValue - 1,
+            currentDate.dayOfMonth,
+        )
+        dialog.datePicker.minDate = firstDate
+            .atStartOfDay(zone)
+            .toInstant()
+            .toEpochMilli()
+        dialog.show()
+    }
+
     fun pickDateTime() {
         val current = Instant.ofEpochMilli(dueAt).atZone(zone).toLocalDateTime()
         DatePickerDialog(
@@ -101,10 +132,12 @@ internal fun ReminderEditorScreen(
                 TimePickerDialog(
                     context,
                     { _, hour, minute ->
-                        dueAt = LocalDateTime.of(chosenDate, LocalTime.of(hour, minute))
-                            .atZone(zone)
-                            .toInstant()
-                            .toEpochMilli()
+                        updateDueAt(
+                            LocalDateTime.of(chosenDate, LocalTime.of(hour, minute))
+                                .atZone(zone)
+                                .toInstant()
+                                .toEpochMilli()
+                        )
                     },
                     current.hour,
                     current.minute,
@@ -161,9 +194,9 @@ internal fun ReminderEditorScreen(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                AssistChip(onClick = { dueAt = quickDateTime(0, 18, 0) }, label = { Text(stringResource(R.string.quick_today_18)) })
-                AssistChip(onClick = { dueAt = quickDateTime(1, 9, 0) }, label = { Text(stringResource(R.string.quick_tomorrow_9)) })
-                AssistChip(onClick = { dueAt = System.currentTimeMillis() + 60 * 60_000L }, label = { Text(stringResource(R.string.quick_in_1h)) })
+                AssistChip(onClick = { updateDueAt(quickDateTime(0, 18, 0)) }, label = { Text(stringResource(R.string.quick_today_18)) })
+                AssistChip(onClick = { updateDueAt(quickDateTime(1, 9, 0)) }, label = { Text(stringResource(R.string.quick_tomorrow_9)) })
+                AssistChip(onClick = { updateDueAt(System.currentTimeMillis() + 60 * 60_000L) }, label = { Text(stringResource(R.string.quick_in_1h)) })
             }
             OutlinedButton(onClick = ::pickDateTime, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                 Icon(Icons.Rounded.Schedule, null)
@@ -220,7 +253,10 @@ internal fun ReminderEditorScreen(
                 RepeatMode.entries.forEach { option ->
                     FilterChip(
                         selected = repeatMode == option,
-                        onClick = { repeatMode = option },
+                        onClick = {
+                            repeatMode = option
+                            if (option == RepeatMode.NONE) repeatUntilEpochDay = null
+                        },
                         label = { Text(stringResource(option.labelRes)) },
                     )
                 }
@@ -245,6 +281,52 @@ internal fun ReminderEditorScreen(
                 }
             }
 
+            if (repeatMode != RepeatMode.NONE) {
+                val repeatStartDate = Instant.ofEpochMilli(dueAt).atZone(zone).toLocalDate()
+                val weekEnd = endOfWeek(repeatStartDate)
+                val monthEnd = repeatStartDate.withDayOfMonth(repeatStartDate.lengthOfMonth())
+                val selectedEndDate = repeatUntilEpochDay?.let(LocalDate::ofEpochDay)
+
+                Spacer(Modifier.height(12.dp))
+                Text(stringResource(R.string.repeat_until), fontWeight = FontWeight.SemiBold)
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    FilterChip(
+                        selected = selectedEndDate == null,
+                        onClick = { repeatUntilEpochDay = null },
+                        label = { Text(stringResource(R.string.repeat_no_end)) },
+                    )
+                    FilterChip(
+                        selected = selectedEndDate == weekEnd,
+                        onClick = { repeatUntilEpochDay = weekEnd.toEpochDay() },
+                        label = { Text(stringResource(R.string.repeat_end_of_week)) },
+                    )
+                    FilterChip(
+                        selected = selectedEndDate == monthEnd,
+                        onClick = { repeatUntilEpochDay = monthEnd.toEpochDay() },
+                        label = { Text(stringResource(R.string.repeat_end_of_month)) },
+                    )
+                    FilterChip(
+                        selected = selectedEndDate != null && selectedEndDate != weekEnd && selectedEndDate != monthEnd,
+                        onClick = ::pickRepeatEndDate,
+                        label = { Text(stringResource(R.string.repeat_choose_date)) },
+                    )
+                }
+                if (selectedEndDate != null) {
+                    Text(
+                        stringResource(
+                            R.string.repeat_until_value,
+                            formatLocalDate(context, selectedEndDate),
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 6.dp),
+                    )
+                }
+            }
+
             Spacer(Modifier.height(28.dp))
             Button(
                 onClick = {
@@ -259,6 +341,7 @@ internal fun ReminderEditorScreen(
                             intensity = intensity.name,
                             repeatMode = repeatMode.name,
                             repeatIntervalDays = repeatIntervalDays,
+                            repeatUntilEpochDay = if (repeatMode == RepeatMode.NONE) null else repeatUntilEpochDay,
                             monthlyAnchorDay = if (repeatMode == RepeatMode.MONTHLY) {
                                 Instant.ofEpochMilli(dueAt).atZone(zone).dayOfMonth
                             } else {
@@ -302,6 +385,14 @@ private fun EditorSectionTitle(text: String) {
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 24.dp, bottom = 10.dp),
     )
+}
+
+private fun endOfWeek(date: LocalDate): LocalDate =
+    date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+
+private fun formatLocalDate(context: Context, date: LocalDate): String {
+    val locale = context.resources.configuration.locales[0]
+    return date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
 }
 
 private fun quickDateTime(daysFromToday: Long, hour: Int, minute: Int): Long =

@@ -34,6 +34,8 @@ O aplicativo é livre, gratuito, sem anúncios e **offline por construção**. N
 
 O campo de prazo significa **resolver até**. Adiar um alerta muda apenas o próximo aviso e não altera o prazo definido.
 
+Recorrências podem ficar sem data final ou terminar em uma data escolhida. O editor deve oferecer atalhos simples para **fim da semana** e **fim do mês**, além da escolha manual da data; a data final é inclusiva.
+
 Doações são voluntárias, não desbloqueiam recursos e não alteram o funcionamento do aplicativo.
 
 ## Próximas etapas

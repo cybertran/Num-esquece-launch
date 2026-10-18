@@ -16,6 +16,12 @@ class ReminderRepository(
     suspend fun save(reminder: ReminderEntity): Long {
         val zone = ZoneId.systemDefault()
         val repeat = reminder.repeatModeValue()
+        val dueEpochDay = Instant.ofEpochMilli(reminder.dueAt).atZone(zone).toLocalDate().toEpochDay()
+        val repeatUntil = if (repeat == RepeatMode.NONE) {
+            null
+        } else {
+            reminder.repeatUntilEpochDay?.coerceAtLeast(dueEpochDay)
+        }
         val anchorDay = if (repeat == RepeatMode.MONTHLY) {
             reminder.monthlyAnchorDay
                 ?: Instant.ofEpochMilli(reminder.dueAt).atZone(zone).dayOfMonth
@@ -32,6 +38,7 @@ class ReminderRepository(
         val prepared = reminder.copy(
             deadlineOffsetMinutes = deadlineOffset,
             monthlyAnchorDay = anchorDay,
+            repeatUntilEpochDay = repeatUntil,
         )
 
         val id = if (prepared.id == 0L) {
