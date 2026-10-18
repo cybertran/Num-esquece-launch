@@ -2,11 +2,13 @@
 
 O Num esquece mantém um único flavor de distribuição chamado `fdroid`.
 
-## Estado da v1.0.0
+## Estado da v1.1.0
 
-A versão `1.0.0` usa `versionCode 10003` e está marcada pela tag `v1.0.0`. O repositório contém `.fdroid.yml` com a receita upstream correspondente para facilitar a inclusão no repositório oficial do F-Droid.
+A versão `1.1.0` usa `versionCode 10100` e é publicada pela tag `v1.1.0`. A metadata upstream preserva também a receita da `1.0.0` (`versionCode 10003`), mantendo o histórico de builds.
 
-O F-Droid deve reconstruir o aplicativo a partir do código-fonte público e aplicar sua própria assinatura de distribuição. Nenhuma chave privada de produção é necessária no repositório público.
+O F-Droid deve reconstruir o aplicativo a partir do código-fonte público e aplicar sua própria assinatura de distribuição. Nenhuma chave privada de produção é necessária no repositório público. Por isso, a GitHub Release da versão estável publica o código-fonte e a tag, mas não publica um APK oficial alternativo assinado pelo projeto.
+
+A v1.1.0 acrescenta limite opcional de recorrência por data, com atalhos para fim da semana e fim do mês e escolha manual da data final, que é inclusiva.
 
 ## Regras do APK F-Droid
 
@@ -28,18 +30,19 @@ Build esperado:
 ./gradlew --no-daemon :app:assembleFdroidRelease
 ```
 
-## Submissão
+## Metadata
 
-A receita upstream usa:
+A receita atual inclui:
 
 ```yaml
-versionName: 1.0.0
-versionCode: 10003
-commit: v1.0.0
-gradle:
-  - fdroid
+- versionName: 1.1.0
+  versionCode: 10100
+  commit: v1.1.0
+  subdir: app
+  gradle:
+    - fdroid
 ```
 
-O arquivo correspondente a ser usado no `fdroiddata` é `metadata/com.cybertran.numesquece.yml`, baseado no conteúdo de `.fdroid.yml`.
+`CurrentVersion` é `1.1.0` e `CurrentVersionCode` é `10100`. O arquivo correspondente no `fdroiddata`, quando presente no repositório oficial, é `metadata/com.cybertran.numesquece.yml` e deve apontar para a mesma tag e código.
 
-Novos recursos visuais ou sonoros devem ter licença e proveniência registradas antes de serem publicados. Cada nova versão estável deve atualizar `versionName`, `versionCode`, tag e metadata de forma consistente.
+O projeto usa `UpdateCheckMode: Tags`, portanto novas versões estáveis devem manter `versionName`, `versionCode`, tag e metadata coerentes. Novos recursos visuais ou sonoros devem ter licença e proveniência registradas antes da publicação.
