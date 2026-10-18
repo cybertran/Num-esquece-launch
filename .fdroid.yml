@@ -19,7 +19,14 @@ Builds:
     gradle:
       - fdroid
 
+  - versionName: 1.1.0
+    versionCode: 10100
+    commit: v1.1.0
+    subdir: app
+    gradle:
+      - fdroid
+
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 1.0.0
-CurrentVersionCode: 10003
+CurrentVersion: 1.1.0
+CurrentVersionCode: 10100
