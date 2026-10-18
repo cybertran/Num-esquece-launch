@@ -122,7 +122,7 @@ jobs:
           else
             gh release create "$TAG" "$ASSET" \
               --repo "$GITHUB_REPOSITORY" \
-              --target "v1.1.0" \
+              --target "d5e8dc2c140e45942f7b8bd7a2977d3dc05beeaa" \
               --prerelease \
               --title "Num esquece Teste — v1.1.0 paralelo" \
               --notes "$NOTES"
